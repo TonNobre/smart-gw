@@ -17,6 +17,19 @@
 <body class="bg-[#0b1329] text-slate-100 min-h-screen antialiased flex flex-col justify-between">
 
     <!-- ========================================== -->
+    <!-- BARRA FLUTUANTE DE SUPER ADMIN / RETORNO   -->
+    <!-- ========================================== -->
+    <div id="adminBanner" class="hidden bg-gradient-to-r from-amber-600 to-orange-600 text-slate-950 font-bold text-xs py-1.5 px-4 flex items-center justify-between shadow-md sticky top-0 z-40">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-eye"></i>
+            <span>MODO GESTOR ATIVO: Você está visualizando o ambiente de <span id="bannerEmpresaNome" class="underline"></span></span>
+        </div>
+        <button onclick="retornarPainelAdmin()" class="bg-slate-950 text-white hover:bg-slate-900 px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all">
+            <i class="fa-solid fa-arrow-left"></i> Painel Admin
+        </button>
+    </div>
+
+    <!-- ========================================== -->
     <!-- TELA DE AUTENTICAÇÃO (CLIENTES E ADMIN)    -->
     <!-- ========================================== -->
     <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#070d1e]/95 backdrop-blur-md px-4 overflow-y-auto py-6">
@@ -30,7 +43,7 @@
                 <p class="text-xs text-slate-400 mt-1">Gestão de Revendas (Água, Gás e Gelo)</p>
             </div>
 
-            <!-- Abas: Cliente vs Administrador -->
+            <!-- Abas: Revenda vs Administrador -->
             <div class="grid grid-cols-2 gap-2 bg-[#0b1329] p-1.5 rounded-xl border border-slate-800 mb-5">
                 <button type="button" id="tabBtnCliente" onclick="alternarAba('CLIENTE')"
                     class="py-2 rounded-lg text-xs font-bold transition-all bg-orange-500 text-slate-950 shadow">
@@ -61,7 +74,7 @@
                             oninput="formatarDocumento(this)"
                             class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all font-mono">
                     </div>
-                    <span class="text-[10px] text-slate-400 mt-1 block">Não tem CNPJ? Digite o seu CPF.</span>
+                    <span class="text-[10px] text-slate-400 mt-1 block">Não tem CNPJ? Digite o seu CPF de autônomo/MEI.</span>
                 </div>
 
                 <div>
@@ -98,37 +111,42 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-solid fa-key"></i>
                         </span>
-                        <input type="password" id="adminPassInput" required placeholder="Digite sua senha de adm"
+                        <input type="password" id="adminPassInput" required placeholder="Digite sua senha mestre"
                             class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all">
                     </div>
-                    <span class="text-[10px] text-slate-400 mt-1 block">Senha padrão inicial: <b class="text-orange-400">admin123</b> (você pode alterá-la após entrar).</span>
+                    <span class="text-[10px] text-slate-400 mt-1 block">Senha padrão inicial: <b class="text-orange-400">admin123</b></span>
                 </div>
 
                 <button type="submit"
                     class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 font-bold text-slate-950 text-sm rounded-xl shadow-lg shadow-orange-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
-                    <i class="fa-solid fa-unlock-keyhole"></i> Acessar Painel de Gestão
+                    <i class="fa-solid fa-unlock-keyhole"></i> Acessar Painel de Controle
                 </button>
             </form>
 
-            <div class="mt-6 pt-4 border-t border-slate-800 text-center text-[11px] text-slate-400">
-                Smart GW • Período de Testes (30 Dias)
+            <!-- Botão de Demonstração Rápida no Rodapé -->
+            <div class="mt-6 pt-4 border-t border-slate-800 space-y-2">
+                <button onclick="acessarAmbienteDemo()" class="w-full py-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Apresentação Comercial (Demonstração Infinita)</span>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- PAINEL SUPER ADMIN (MODAL COMPLETO)        -->
+    <!-- PAINEL SUPER ADMIN (VISÃO GERAL)           -->
     <!-- ========================================== -->
     <div id="painelAdminModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md px-4 overflow-y-auto py-6">
-        <div class="w-full max-w-2xl bg-[#131f37] border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
+        <div class="w-full max-w-4xl bg-[#131f37] border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto hide-scrollbar">
+            
             <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-lg">
                         <i class="fa-solid fa-user-shield"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-base text-white">Painel do Administrador</h3>
-                        <p class="text-xs text-slate-400">Liberar acessos e gerenciar senhas das revendas</p>
+                        <h3 class="font-bold text-base text-white">Central de Gestão Smart GW</h3>
+                        <p class="text-xs text-slate-400">Controle das revendas em teste, senhas e ambiente permanente</p>
                     </div>
                 </div>
                 <button onclick="fecharPainelAdmin()" class="text-slate-400 hover:text-white p-2 text-lg">
@@ -136,37 +154,37 @@
                 </button>
             </div>
 
-            <!-- Configuração: Trocar a Senha de Administrador -->
-            <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800 space-y-3">
-                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-lock text-orange-400"></i> Trocar Sua Senha de Administrador
-                </h4>
-                <div class="flex gap-2">
-                    <input type="password" id="novaSenhaMestre" placeholder="Digite a nova senha que você deseja usar"
-                        class="flex-1 px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white focus:outline-none focus:border-orange-500">
-                    <button onclick="salvarNovaSenhaMestre()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold text-xs rounded-lg transition-all">
-                        Salvar Senha
-                    </button>
+            <!-- Card Destaque: Ambiente de Testes Infinito -->
+            <div class="bg-gradient-to-r from-cyan-950/60 to-blue-950/60 border border-cyan-500/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-full font-bold uppercase tracking-wider">Permanente / Infinito</span>
+                        <h4 class="font-black text-sm text-white">Ambiente de Demonstração (Showroom)</h4>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-1">Utilize para fazer apresentações ao vivo aos clientes sem prazo de validade e sem tocar nos dados das empresas cadastradas.</p>
                 </div>
+                <button onclick="acessarAmbienteDemo()" class="px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-play"></i> Abrir Demonstração
+                </button>
             </div>
 
             <!-- Cadastro de Nova Revenda -->
             <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800 space-y-3">
                 <h4 class="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Cadastrar Nova Revenda
+                    <i class="fa-solid fa-plus"></i> Cadastrar Nova Revenda para Testes (30 Dias)
                 </h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" id="novoNome" placeholder="Nome Fantasia da Revenda"
+                    <input type="text" id="novoNome" placeholder="Nome Fantasia (ex: Gás & Água São Paulo)"
                         class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white">
-                    <input type="text" id="novoDoc" placeholder="CNPJ ou CPF"
+                    <input type="text" id="novoDoc" placeholder="CNPJ ou CPF (apenas números)"
                         oninput="formatarDocumento(this)"
                         class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white font-mono">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" id="novoWhats" placeholder="WhatsApp (com DDD)"
+                    <input type="text" id="novoWhats" placeholder="WhatsApp do Responsável (com DDD)"
                         class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white">
                     <div class="flex gap-2">
-                        <input type="text" id="novaSenhaCliente" placeholder="Senha do cliente (ex: 123456)"
+                        <input type="text" id="novaSenhaCliente" placeholder="Senha provisória"
                             class="flex-1 px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white font-mono">
                         <button onclick="gerarSenhaCliente()" type="button" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700" title="Gerar senha aleatória">
                             <i class="fa-solid fa-shuffle"></i>
@@ -174,20 +192,39 @@
                     </div>
                 </div>
                 <button onclick="cadastrarRevenda()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-check"></i> Salvar e Liberar Acesso
+                    <i class="fa-solid fa-check"></i> Salvar e Liberar Acesso Imediato
                 </button>
             </div>
 
-            <!-- Tabela de Revendas Cadastradas -->
+            <!-- Lista de Revendas com Acesso Espelho -->
             <div>
-                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Revendas Cadastradas</h4>
-                <div class="max-h-56 overflow-y-auto border border-slate-800 rounded-xl divide-y divide-slate-800" id="listaRevendas"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                        Revendas Cadastradas (<span id="contagemRevendas">0</span>/10)
+                    </h4>
+                    <span class="text-[11px] text-slate-400">Clique em "Visão do Cliente" para enxergar o sistema deles</span>
+                </div>
+                <div class="max-h-64 overflow-y-auto border border-slate-800 rounded-xl divide-y divide-slate-800" id="listaRevendas"></div>
+            </div>
+
+            <!-- Troca da Senha Mestre -->
+            <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800 space-y-2">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-key"></i> Senha de Administrador (Sua Senha)
+                </h4>
+                <div class="flex gap-2">
+                    <input type="password" id="novaSenhaMestre" placeholder="Nova senha mestre de adm"
+                        class="flex-1 px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white">
+                    <button onclick="salvarNovaSenhaMestre()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-lg border border-slate-700">
+                        Alterar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- INTERFACE PRINCIPAL (PDV / CRM)            -->
+    <!-- INTERFACE PRINCIPAL (PDV / OPERAÇÃO)       -->
     <!-- ========================================== -->
     <header class="bg-[#101b33] border-b border-slate-800 px-4 py-3 sticky top-0 z-30 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -197,17 +234,19 @@
             <div>
                 <div class="flex items-center gap-2">
                     <span id="tenantName" class="font-bold text-sm tracking-wide text-white">Smart GW Balcão</span>
-                    <span class="px-2 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-semibold">Online</span>
+                    <span id="tenantBadge" class="px-2 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-semibold">Online</span>
                 </div>
                 <p id="tenantDocDisplay" class="text-[11px] text-slate-400 font-mono">Doc: 00.000.000/0000-00</p>
             </div>
         </div>
 
-        <button onclick="handleLogout()" title="Sair do sistema"
-            class="px-3 py-1.5 bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 border border-slate-700 hover:border-rose-500/40 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <button onclick="handleLogout()" title="Sair do sistema"
+                class="px-3 py-1.5 bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 border border-slate-700 hover:border-rose-500/40 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </button>
+        </div>
     </header>
 
     <!-- ÁREA DE VENDAS (PDV) -->
@@ -309,7 +348,7 @@
                 </div>
                 <button onclick="concluirVenda()"
                     class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 active:scale-95 font-black text-slate-950 rounded-xl shadow-lg shadow-emerald-500/20 text-sm transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-check"></i> Concluir Venda
+                    <i class="fa-solid fa-circle-check"></i> Concluir Venda e Emitir Cupom
                 </button>
             </div>
         </div>
@@ -317,7 +356,7 @@
 
     <!-- JavaScript Integrado -->
     <script>
-        // Gestão da Senha Mestre de Administrador
+        // Gestão de Senha Mestre de Administrador
         function obterSenhaMestre() {
             return localStorage.getItem('smartgw_admin_master_pass') || 'admin123';
         }
@@ -330,7 +369,7 @@
             }
             localStorage.setItem('smartgw_admin_master_pass', nova);
             document.getElementById('novaSenhaMestre').value = "";
-            alert("Sua senha de administrador foi alterada com sucesso!");
+            alert("Senha de administrador alterada com sucesso!");
         }
 
         // Alternância de Abas na Tela de Login
@@ -353,14 +392,19 @@
             }
         }
 
-        // Gestão das Contas de Clientes no Navegador
+        // Banco Local de Revendas
         function carregarRevendas() {
             const salvas = localStorage.getItem('smartgw_contas_tenants');
             if (salvas) return JSON.parse(salvas);
             
             const padrao = {
-                "00000000000": { nome: "Revenda Piloto (CPF Autônomo)", pass: "123456", docFormatado: "000.000.000-00" },
-                "12345678000199": { nome: "Distribuidora Modelo (CNPJ)", pass: "123456", docFormatado: "12.345.678/0001-99" }
+                "12345678000199": { 
+                    nome: "Revenda Modelo Piloto (DF)", 
+                    pass: "123456", 
+                    whats: "61999999999", 
+                    docFormatado: "12.345.678/0001-99",
+                    status: "EM_TESTE"
+                }
             };
             localStorage.setItem('smartgw_contas_tenants', JSON.stringify(padrao));
             return padrao;
@@ -394,6 +438,7 @@
                 sessionStorage.setItem('smartgw_auth', 'true');
                 sessionStorage.setItem('smartgw_tenant', contas[docLimpo].nome);
                 sessionStorage.setItem('smartgw_doc', contas[docLimpo].docFormatado || document.getElementById('loginDoc').value);
+                sessionStorage.setItem('smartgw_is_admin_view', 'false');
                 aplicarSessao();
             } else {
                 erroEl.classList.remove('hidden');
@@ -418,6 +463,43 @@
             document.getElementById('painelAdminModal').classList.add('hidden');
         }
 
+        // ==========================================
+        // 1. MODO VISÃO DO CLIENTE (ESPELHO)
+        // ==========================================
+        function acessarVisaoCliente(docChave) {
+            const contas = carregarRevendas();
+            const r = contas[docChave];
+            if (!r) return;
+
+            sessionStorage.setItem('smartgw_auth', 'true');
+            sessionStorage.setItem('smartgw_tenant', r.nome);
+            sessionStorage.setItem('smartgw_doc', r.docFormatado || docChave);
+            sessionStorage.setItem('smartgw_is_admin_view', 'true');
+            
+            fecharPainelAdmin();
+            aplicarSessao();
+        }
+
+        // ==========================================
+        // 2. AMBIENTE DE TESTES INFINITO (SHOWROOM)
+        // ==========================================
+        function acessarAmbienteDemo() {
+            sessionStorage.setItem('smartgw_auth', 'true');
+            sessionStorage.setItem('smartgw_tenant', 'Smart GW Demo (Demonstração Infinita)');
+            sessionStorage.setItem('smartgw_doc', '00.000.000/0001-00 (Ambiente Livre)');
+            sessionStorage.setItem('smartgw_is_admin_view', 'true');
+            sessionStorage.setItem('smartgw_is_demo', 'true');
+
+            fecharPainelAdmin();
+            aplicarSessao();
+        }
+
+        function retornarPainelAdmin() {
+            document.getElementById('adminBanner').classList.add('hidden');
+            document.getElementById('painelAdminModal').classList.remove('hidden');
+            renderizarListaRevendas();
+        }
+
         function gerarSenhaCliente() {
             const senha = Math.floor(100000 + Math.random() * 900000).toString();
             document.getElementById('novaSenhaCliente').value = senha;
@@ -440,7 +522,9 @@
                 nome: nome,
                 pass: pass,
                 whats: whats,
-                docFormatado: docInput
+                docFormatado: docInput,
+                status: "EM_TESTE",
+                criadoEm: new Date().toLocaleDateString('pt-BR')
             };
 
             localStorage.setItem('smartgw_contas_tenants', JSON.stringify(contas));
@@ -457,26 +541,36 @@
             const contas = carregarRevendas();
             const container = document.getElementById('listaRevendas');
             const chaves = Object.keys(contas);
+            document.getElementById('contagemRevendas').innerText = chaves.length;
 
             if (chaves.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 p-3 text-center">Nenhuma revenda cadastrada.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-500 p-4 text-center">Nenhuma revenda cadastrada ainda.</p>`;
                 return;
             }
 
             container.innerHTML = chaves.map(k => {
                 const r = contas[k];
                 return `
-                    <div class="p-3 bg-[#0b1329] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="p-3 bg-[#0b1329] flex flex-col md:flex-row md:items-center justify-between gap-3">
                         <div>
-                            <p class="text-xs font-bold text-white">${r.nome}</p>
-                            <p class="text-[11px] text-slate-400 font-mono">${r.docFormatado || k} | Senha: <span class="text-orange-400 font-bold">${r.pass}</span></p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-white">${r.nome}</span>
+                                <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-1.5 py-0.2 rounded font-semibold">30 Dias</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 font-mono mt-0.5">
+                                ${r.docFormatado || k} • Senha: <span class="text-orange-400 font-bold">${r.pass}</span>
+                            </p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="copiarMensagemWhatsApp('${r.nome}', '${r.docFormatado || k}', '${r.pass}')"
-                                class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold flex items-center gap-1">
-                                <i class="fa-brands fa-whatsapp"></i> Copiar Convite
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="acessarVisaoCliente('${k}')"
+                                class="px-2.5 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-eye"></i> Visão do Cliente
                             </button>
-                            <button onclick="removerRevenda('${k}')" class="text-slate-500 hover:text-rose-400 px-2">
+                            <button onclick="copiarMensagemWhatsApp('${r.nome}', '${r.docFormatado || k}', '${r.pass}')"
+                                class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                            </button>
+                            <button onclick="removerRevenda('${k}')" class="text-slate-500 hover:text-rose-400 px-2 py-1" title="Remover revenda">
                                 <i class="fa-solid fa-trash-can text-xs"></i>
                             </button>
                         </div>
@@ -496,25 +590,43 @@
 
         function copiarMensagemWhatsApp(nome, doc, pass) {
             const link = window.location.origin;
-            const texto = `Olá! O acesso exclusivo ao sistema *Smart GW* está liberado para o período de testes de 30 dias.\n\n` +
-                          `🔗 *Link do Sistema:* ${link}\n` +
+            const texto = `Olá! O seu acesso exclusivo ao sistema *Smart GW* está liberado para o teste gratuito de 30 dias.\n\n` +
+                          `🔗 *Link de Acesso:* ${link}\n` +
                           `🏢 *Login (CNPJ/CPF):* ${doc}\n` +
                           `🔑 *Sua Senha:* ${pass}\n\n` +
-                          `Qualquer dúvida no balcão ou nas entregas, estou à disposição!`;
+                          `Qualquer dúvida no balcão ou nas rotas de entrega, estou à disposição!`;
 
             navigator.clipboard.writeText(texto).then(() => {
-                alert("Mensagem copiada! Basta colar no WhatsApp do seu cliente.");
+                alert("Mensagem copiada para a área de transferência! Basta colar no WhatsApp do seu cliente.");
             });
         }
 
         function aplicarSessao() {
             const auth = sessionStorage.getItem('smartgw_auth');
+            const isAdminView = sessionStorage.getItem('smartgw_is_admin_view') === 'true';
+            const isDemo = sessionStorage.getItem('smartgw_is_demo') === 'true';
+
             if (auth === 'true') {
                 document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('tenantName').innerText = sessionStorage.getItem('smartgw_tenant') || "Smart GW";
+                
+                const nomeTenant = sessionStorage.getItem('smartgw_tenant') || "Smart GW";
+                document.getElementById('tenantName').innerText = nomeTenant;
                 document.getElementById('tenantDocDisplay').innerText = `Doc: ${sessionStorage.getItem('smartgw_doc') || ""}`;
+
+                if (isDemo) {
+                    document.getElementById('tenantBadge').innerText = "Modo Demo Infinito";
+                    document.getElementById('tenantBadge').className = "px-2 py-0.5 text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-full font-bold";
+                }
+
+                if (isAdminView) {
+                    document.getElementById('adminBanner').classList.remove('hidden');
+                    document.getElementById('bannerEmpresaNome').innerText = nomeTenant;
+                } else {
+                    document.getElementById('adminBanner').classList.add('hidden');
+                }
             } else {
                 document.getElementById('loginOverlay').classList.remove('hidden');
+                document.getElementById('adminBanner').classList.add('hidden');
             }
         }
 
@@ -585,7 +697,7 @@
 
         function concluirVenda() {
             if (carrinho.length === 0) return alert("Adicione produtos ao pedido.");
-            alert("Venda concluída com sucesso!");
+            alert("Venda concluída com sucesso no Smart GW!");
             limparCarrinho();
         }
 
