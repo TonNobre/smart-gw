@@ -17,24 +17,38 @@
 <body class="bg-[#0b1329] text-slate-100 min-h-screen antialiased flex flex-col justify-between">
 
     <!-- ========================================== -->
-    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
+    <!-- TELA DE AUTENTICAÇÃO (CLIENTES E ADMIN)    -->
     <!-- ========================================== -->
-    <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#070d1e]/90 backdrop-blur-md px-4">
+    <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#070d1e]/95 backdrop-blur-md px-4 overflow-y-auto py-6">
         <div class="w-full max-w-md bg-[#131f37] border border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-2xl relative">
+            
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 font-black text-2xl shadow-lg shadow-orange-500/20 mb-3">
                     GW
                 </div>
                 <h2 class="text-2xl font-black tracking-wide text-white">Smart GW</h2>
-                <p class="text-xs text-slate-400 mt-1">Acesso à Revenda (Água, Gás e Gelo)</p>
+                <p class="text-xs text-slate-400 mt-1">Gestão de Revendas (Água, Gás e Gelo)</p>
             </div>
 
-            <div id="loginError" class="hidden mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 flex items-center gap-2">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span id="loginErrorMsg">Documento ou senha inválidos.</span>
+            <!-- Abas: Cliente vs Administrador -->
+            <div class="grid grid-cols-2 gap-2 bg-[#0b1329] p-1.5 rounded-xl border border-slate-800 mb-5">
+                <button type="button" id="tabBtnCliente" onclick="alternarAba('CLIENTE')"
+                    class="py-2 rounded-lg text-xs font-bold transition-all bg-orange-500 text-slate-950 shadow">
+                    <i class="fa-solid fa-store mr-1"></i> Revenda
+                </button>
+                <button type="button" id="tabBtnAdmin" onclick="alternarAba('ADMIN')"
+                    class="py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Administrador
+                </button>
             </div>
 
-            <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-4">
+            <!-- Formulário: Revenda (CNPJ ou CPF) -->
+            <form id="formLoginCliente" onsubmit="handleLoginCliente(event)" class="space-y-4">
+                <div id="loginErrorCliente" class="hidden p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>Documento ou senha inválidos.</span>
+                </div>
+
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
                         CNPJ ou CPF da Revenda
@@ -45,9 +59,9 @@
                         </span>
                         <input type="text" id="loginDoc" required placeholder="00.000.000/0000-00 ou CPF"
                             oninput="formatarDocumento(this)"
-                            class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all font-mono">
+                            class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all font-mono">
                     </div>
-                    <span class="text-[10px] text-slate-400 mt-1 block">Não tem CNPJ? Digite o seu CPF de autônomo/MEI.</span>
+                    <span class="text-[10px] text-slate-400 mt-1 block">Não tem CNPJ? Digite o seu CPF.</span>
                 </div>
 
                 <div>
@@ -59,32 +73,53 @@
                             <i class="fa-solid fa-lock"></i>
                         </span>
                         <input type="password" id="loginPass" required placeholder="Digite sua senha"
-                            class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all">
+                            class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all">
                     </div>
                 </div>
 
-                <div class="pt-2">
-                    <button type="submit"
-                        class="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 font-bold text-slate-950 text-sm rounded-xl shadow-lg shadow-orange-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                        <span>Entrar no Sistema</span>
-                    </button>
-                </div>
+                <button type="submit"
+                    class="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 font-bold text-slate-950 text-sm rounded-xl shadow-lg shadow-orange-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-right-to-bracket"></i> Entrar na Revenda
+                </button>
             </form>
 
-            <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                <span>Período de Testes (30 Dias)</span>
-                <button onclick="abrirAdminModal()" class="text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1">
-                    <i class="fa-solid fa-shield-halved"></i> Painel Admin
+            <!-- Formulário: Administrador Mestre -->
+            <form id="formLoginAdmin" onsubmit="handleLoginAdmin(event)" class="space-y-4 hidden">
+                <div id="loginErrorAdmin" class="hidden p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>Senha de administrador incorreta.</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                        Sua Senha de Administrador
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <i class="fa-solid fa-key"></i>
+                        </span>
+                        <input type="password" id="adminPassInput" required placeholder="Digite sua senha de adm"
+                            class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all">
+                    </div>
+                    <span class="text-[10px] text-slate-400 mt-1 block">Senha padrão inicial: <b class="text-orange-400">admin123</b> (você pode alterá-la após entrar).</span>
+                </div>
+
+                <button type="submit"
+                    class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 font-bold text-slate-950 text-sm rounded-xl shadow-lg shadow-orange-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-unlock-keyhole"></i> Acessar Painel de Gestão
                 </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-slate-800 text-center text-[11px] text-slate-400">
+                Smart GW • Período de Testes (30 Dias)
             </div>
         </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- MODAL SUPER ADMIN (GERENCIADOR DE SENHAS) -->
+    <!-- PAINEL SUPER ADMIN (MODAL COMPLETO)        -->
     <!-- ========================================== -->
-    <div id="adminModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md px-4 overflow-y-auto py-8">
+    <div id="painelAdminModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md px-4 overflow-y-auto py-6">
         <div class="w-full max-w-2xl bg-[#131f37] border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
             <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div class="flex items-center gap-3">
@@ -92,71 +127,67 @@
                         <i class="fa-solid fa-user-shield"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-base text-white">Painel Super Admin - Smart GW</h3>
-                        <p class="text-xs text-slate-400">Gestão e liberação de acessos das 10 revendas piloto</p>
+                        <h3 class="font-bold text-base text-white">Painel do Administrador</h3>
+                        <p class="text-xs text-slate-400">Liberar acessos e gerenciar senhas das revendas</p>
                     </div>
                 </div>
-                <button onclick="fecharAdminModal()" class="text-slate-400 hover:text-white p-2">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                <button onclick="fecharPainelAdmin()" class="text-slate-400 hover:text-white p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- Ecrã de Autenticação do Administrador -->
-            <div id="adminAuthBox" class="space-y-4">
-                <p class="text-xs text-slate-300">Introduza a sua senha mestre de administrador para gerir os clientes:</p>
+            <!-- Configuração: Trocar a Senha de Administrador -->
+            <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800 space-y-3">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-orange-400"></i> Trocar Sua Senha de Administrador
+                </h4>
                 <div class="flex gap-2">
-                    <input type="password" id="adminMasterPass" placeholder="Senha mestre (padrão: admin123)"
-                        class="flex-1 px-4 py-2.5 bg-[#0b1329] border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-orange-500">
-                    <button onclick="autenticarAdmin()" class="px-5 py-2.5 bg-orange-500 text-slate-950 font-bold text-xs rounded-xl hover:bg-orange-600">
-                        Aceder
+                    <input type="password" id="novaSenhaMestre" placeholder="Digite a nova senha que você deseja usar"
+                        class="flex-1 px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white focus:outline-none focus:border-orange-500">
+                    <button onclick="salvarNovaSenhaMestre()" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold text-xs rounded-lg transition-all">
+                        Salvar Senha
                     </button>
                 </div>
-                <p id="adminAuthErro" class="hidden text-xs text-rose-400">Senha mestre incorreta.</p>
             </div>
 
-            <!-- Painel de Gestão (visível após desbloqueio) -->
-            <div id="adminDashboardBox" class="hidden space-y-6">
-                <!-- Formulário de Nova Revenda -->
-                <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800 space-y-3">
-                    <h4 class="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Cadastrar Nova Revenda
-                    </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" id="novoNome" placeholder="Nome Fantasia da Revenda"
-                            class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white">
-                        <input type="text" id="novoDoc" placeholder="CNPJ ou CPF (apenas números)"
-                            oninput="formatarDocumento(this)"
-                            class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white font-mono">
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" id="novoWhats" placeholder="WhatsApp do Cliente (com DDD)"
-                            class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white">
-                        <div class="flex gap-2">
-                            <input type="text" id="novaSenha" placeholder="Senha provisória"
-                                class="flex-1 px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white font-mono">
-                            <button onclick="gerarSenhaAleatoria()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700" title="Gerar senha">
-                                <i class="fa-solid fa-shuffle"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button onclick="adicionarRevenda()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-check"></i> Cadastrar e Liberar Acesso
-                    </button>
+            <!-- Cadastro de Nova Revenda -->
+            <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800 space-y-3">
+                <h4 class="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Cadastrar Nova Revenda
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input type="text" id="novoNome" placeholder="Nome Fantasia da Revenda"
+                        class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white">
+                    <input type="text" id="novoDoc" placeholder="CNPJ ou CPF"
+                        oninput="formatarDocumento(this)"
+                        class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white font-mono">
                 </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input type="text" id="novoWhats" placeholder="WhatsApp (com DDD)"
+                        class="px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white">
+                    <div class="flex gap-2">
+                        <input type="text" id="novaSenhaCliente" placeholder="Senha do cliente (ex: 123456)"
+                            class="flex-1 px-3 py-2 bg-[#131f37] border border-slate-700 text-xs rounded-lg text-white font-mono">
+                        <button onclick="gerarSenhaCliente()" type="button" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700" title="Gerar senha aleatória">
+                            <i class="fa-solid fa-shuffle"></i>
+                        </button>
+                    </div>
+                </div>
+                <button onclick="cadastrarRevenda()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> Salvar e Liberar Acesso
+                </button>
+            </div>
 
-                <!-- Tabela de Revendas Cadastradas -->
-                <div>
-                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Revendas Ativas no Período de Testes</h4>
-                    <div class="max-h-56 overflow-y-auto border border-slate-800 rounded-xl divide-y divide-slate-800" id="listaRevendas">
-                        <!-- Gerado via JavaScript -->
-                    </div>
-                </div>
+            <!-- Tabela de Revendas Cadastradas -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Revendas Cadastradas</h4>
+                <div class="max-h-56 overflow-y-auto border border-slate-800 rounded-xl divide-y divide-slate-800" id="listaRevendas"></div>
             </div>
         </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- INTERFACE PRINCIPAL (PDV / CRM) -->
+    <!-- INTERFACE PRINCIPAL (PDV / CRM)            -->
     <!-- ========================================== -->
     <header class="bg-[#101b33] border-b border-slate-800 px-4 py-3 sticky top-0 z-30 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -172,22 +203,15 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-3">
-            <div class="hidden sm:flex flex-col text-right">
-                <span class="text-xs font-semibold text-slate-200">Operador Principal</span>
-                <span class="text-[10px] text-slate-400">Balcão / Caixa 01</span>
-            </div>
-            <button onclick="handleLogout()" title="Sair do sistema"
-                class="px-3 py-1.5 bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 border border-slate-700 hover:border-rose-500/40 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span class="hidden sm:inline">Trocar Revenda</span>
-            </button>
-        </div>
+        <button onclick="handleLogout()" title="Sair do sistema"
+            class="px-3 py-1.5 bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-400 border border-slate-700 hover:border-rose-500/40 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </button>
     </header>
 
     <!-- ÁREA DE VENDAS (PDV) -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-5">
-        <!-- Coluna Esquerda: Catálogo -->
         <div class="lg:col-span-7 space-y-4">
             <div class="grid grid-cols-2 gap-2 bg-[#101b33] p-1.5 rounded-2xl border border-slate-800">
                 <button id="btnBalcao" onclick="setDestino('BALCAO')"
@@ -202,7 +226,7 @@
 
             <!-- Grade de Produtos -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div onclick="adicionarItem('Botijão P13', 115.00, 125.00, 'GAS')"
+                <div onclick="adicionarItem('Botijão P13', 115.00, 125.00)"
                     class="bg-[#101b33] border border-slate-800 hover:border-orange-500/50 rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.02] active:scale-95">
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm">
@@ -218,7 +242,7 @@
                     </div>
                 </div>
 
-                <div onclick="adicionarItem('Galão Água 20L', 14.00, 18.00, 'AGUA')"
+                <div onclick="adicionarItem('Galão Água 20L', 14.00, 18.00)"
                     class="bg-[#101b33] border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.02] active:scale-95">
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm">
@@ -234,7 +258,7 @@
                     </div>
                 </div>
 
-                <div onclick="adicionarItem('Gelo em Cubos 5kg', 12.00, 15.00, 'GELO')"
+                <div onclick="adicionarItem('Gelo em Cubos 5kg', 12.00, 15.00)"
                     class="bg-[#101b33] border border-slate-800 hover:border-blue-500/50 rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.02] active:scale-95">
                     <div class="flex items-center justify-between mb-3">
                         <span class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm">
@@ -257,13 +281,10 @@
                     <i class="fa-solid fa-location-dot"></i> Endereço para Rota de Entrega
                 </span>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <input type="text" id="cliNome" placeholder="Nome do Cliente"
-                        class="bg-[#0b1329] border border-slate-700 text-xs rounded-xl px-3 py-2 text-white placeholder-slate-500">
-                    <input type="text" id="cliWhats" placeholder="WhatsApp / Telefone"
-                        class="bg-[#0b1329] border border-slate-700 text-xs rounded-xl px-3 py-2 text-white placeholder-slate-500">
+                    <input type="text" placeholder="Nome do Cliente" class="bg-[#0b1329] border border-slate-700 text-xs rounded-xl px-3 py-2 text-white">
+                    <input type="text" placeholder="WhatsApp / Telefone" class="bg-[#0b1329] border border-slate-700 text-xs rounded-xl px-3 py-2 text-white">
                 </div>
-                <input type="text" id="cliEnd" placeholder="Endereço, Rua, Quadra, Lote ou Casa"
-                    class="w-full bg-[#0b1329] border border-slate-700 text-xs rounded-xl px-3 py-2 text-white placeholder-slate-500">
+                <input type="text" placeholder="Endereço, Rua, Quadra, Lote ou Casa" class="w-full bg-[#0b1329] border border-slate-700 text-xs rounded-xl px-3 py-2 text-white">
             </div>
         </div>
 
@@ -276,14 +297,299 @@
                     </h2>
                     <button onclick="limparCarrinho()" class="text-[11px] text-slate-400 hover:text-rose-400">Limpar</button>
                 </div>
-
                 <div id="carrinhoLista" class="py-3 space-y-2 max-h-56 overflow-y-auto hide-scrollbar text-xs">
                     <p class="text-center text-slate-500 py-6">Nenhum item adicionado ainda.</p>
                 </div>
             </div>
 
             <div class="pt-4 border-t border-slate-800 space-y-3">
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">Forma de Pagamento</label>
-                    <div class="grid grid-cols-3 gap-1.5 text-xs">
-                        <button onclick="setPagamento('DINHEIRO')"
+                <div class="flex items-baseline justify-between pt-2">
+                    <span class="text-xs text-slate-400">Total a Cobrar</span>
+                    <span id="valorTotal" class="text-2xl font-black text-white">R$ 0,00</span>
+                </div>
+                <button onclick="concluirVenda()"
+                    class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 active:scale-95 font-black text-slate-950 rounded-xl shadow-lg shadow-emerald-500/20 text-sm transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i> Concluir Venda
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript Integrado -->
+    <script>
+        // Gestão da Senha Mestre de Administrador
+        function obterSenhaMestre() {
+            return localStorage.getItem('smartgw_admin_master_pass') || 'admin123';
+        }
+
+        function salvarNovaSenhaMestre() {
+            const nova = document.getElementById('novaSenhaMestre').value.trim();
+            if (nova.length < 4) {
+                alert("A nova senha deve ter pelo menos 4 caracteres.");
+                return;
+            }
+            localStorage.setItem('smartgw_admin_master_pass', nova);
+            document.getElementById('novaSenhaMestre').value = "";
+            alert("Sua senha de administrador foi alterada com sucesso!");
+        }
+
+        // Alternância de Abas na Tela de Login
+        function alternarAba(aba) {
+            const btnCli = document.getElementById('tabBtnCliente');
+            const btnAdm = document.getElementById('tabBtnAdmin');
+            const formCli = document.getElementById('formLoginCliente');
+            const formAdm = document.getElementById('formLoginAdmin');
+
+            if (aba === 'CLIENTE') {
+                btnCli.className = "py-2 rounded-lg text-xs font-bold transition-all bg-orange-500 text-slate-950 shadow";
+                btnAdm.className = "py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+                formCli.classList.remove('hidden');
+                formAdm.classList.add('hidden');
+            } else {
+                btnAdm.className = "py-2 rounded-lg text-xs font-bold transition-all bg-orange-500 text-slate-950 shadow";
+                btnCli.className = "py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+                formAdm.classList.remove('hidden');
+                formCli.classList.add('hidden');
+            }
+        }
+
+        // Gestão das Contas de Clientes no Navegador
+        function carregarRevendas() {
+            const salvas = localStorage.getItem('smartgw_contas_tenants');
+            if (salvas) return JSON.parse(salvas);
+            
+            const padrao = {
+                "00000000000": { nome: "Revenda Piloto (CPF Autônomo)", pass: "123456", docFormatado: "000.000.000-00" },
+                "12345678000199": { nome: "Distribuidora Modelo (CNPJ)", pass: "123456", docFormatado: "12.345.678/0001-99" }
+            };
+            localStorage.setItem('smartgw_contas_tenants', JSON.stringify(padrao));
+            return padrao;
+        }
+
+        function formatarDocumento(input) {
+            let v = input.value.replace(/\D/g, "");
+            if (v.length > 14) v = v.slice(0, 14);
+
+            if (v.length <= 11) {
+                v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            } else {
+                v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+                v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+                v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+                v = v.replace(/(\d{4})(\d)/, "$1-$2");
+            }
+            input.value = v;
+        }
+
+        function handleLoginCliente(e) {
+            e.preventDefault();
+            const docLimpo = document.getElementById('loginDoc').value.replace(/\D/g, "");
+            const pass = document.getElementById('loginPass').value;
+            const erroEl = document.getElementById('loginErrorCliente');
+            const contas = carregarRevendas();
+
+            if (contas[docLimpo] && contas[docLimpo].pass === pass) {
+                sessionStorage.setItem('smartgw_auth', 'true');
+                sessionStorage.setItem('smartgw_tenant', contas[docLimpo].nome);
+                sessionStorage.setItem('smartgw_doc', contas[docLimpo].docFormatado || document.getElementById('loginDoc').value);
+                aplicarSessao();
+            } else {
+                erroEl.classList.remove('hidden');
+            }
+        }
+
+        function handleLoginAdmin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPassInput').value;
+            const erroEl = document.getElementById('loginErrorAdmin');
+
+            if (pass === obterSenhaMestre()) {
+                erroEl.classList.add('hidden');
+                document.getElementById('painelAdminModal').classList.remove('hidden');
+                renderizarListaRevendas();
+            } else {
+                erroEl.classList.remove('hidden');
+            }
+        }
+
+        function fecharPainelAdmin() {
+            document.getElementById('painelAdminModal').classList.add('hidden');
+        }
+
+        function gerarSenhaCliente() {
+            const senha = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('novaSenhaCliente').value = senha;
+        }
+
+        function cadastrarRevenda() {
+            const nome = document.getElementById('novoNome').value.trim();
+            const docInput = document.getElementById('novoDoc').value;
+            const docLimpo = docInput.replace(/\D/g, "");
+            const whats = document.getElementById('novoWhats').value.trim();
+            const pass = document.getElementById('novaSenhaCliente').value.trim();
+
+            if (!nome || !docLimpo || !pass) {
+                alert("Preencha o Nome, CNPJ/CPF e a Senha.");
+                return;
+            }
+
+            const contas = carregarRevendas();
+            contas[docLimpo] = {
+                nome: nome,
+                pass: pass,
+                whats: whats,
+                docFormatado: docInput
+            };
+
+            localStorage.setItem('smartgw_contas_tenants', JSON.stringify(contas));
+            renderizarListaRevendas();
+
+            document.getElementById('novoNome').value = "";
+            document.getElementById('novoDoc').value = "";
+            document.getElementById('novoWhats').value = "";
+            document.getElementById('novaSenhaCliente').value = "";
+            alert(`Revenda "${nome}" cadastrada com sucesso!`);
+        }
+
+        function renderizarListaRevendas() {
+            const contas = carregarRevendas();
+            const container = document.getElementById('listaRevendas');
+            const chaves = Object.keys(contas);
+
+            if (chaves.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 p-3 text-center">Nenhuma revenda cadastrada.</p>`;
+                return;
+            }
+
+            container.innerHTML = chaves.map(k => {
+                const r = contas[k];
+                return `
+                    <div class="p-3 bg-[#0b1329] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <p class="text-xs font-bold text-white">${r.nome}</p>
+                            <p class="text-[11px] text-slate-400 font-mono">${r.docFormatado || k} | Senha: <span class="text-orange-400 font-bold">${r.pass}</span></p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copiarMensagemWhatsApp('${r.nome}', '${r.docFormatado || k}', '${r.pass}')"
+                                class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold flex items-center gap-1">
+                                <i class="fa-brands fa-whatsapp"></i> Copiar Convite
+                            </button>
+                            <button onclick="removerRevenda('${k}')" class="text-slate-500 hover:text-rose-400 px-2">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removerRevenda(chave) {
+            if (confirm("Deseja revogar o acesso desta revenda?")) {
+                const contas = carregarRevendas();
+                delete contas[chave];
+                localStorage.setItem('smartgw_contas_tenants', JSON.stringify(contas));
+                renderizarListaRevendas();
+            }
+        }
+
+        function copiarMensagemWhatsApp(nome, doc, pass) {
+            const link = window.location.origin;
+            const texto = `Olá! O acesso exclusivo ao sistema *Smart GW* está liberado para o período de testes de 30 dias.\n\n` +
+                          `🔗 *Link do Sistema:* ${link}\n` +
+                          `🏢 *Login (CNPJ/CPF):* ${doc}\n` +
+                          `🔑 *Sua Senha:* ${pass}\n\n` +
+                          `Qualquer dúvida no balcão ou nas entregas, estou à disposição!`;
+
+            navigator.clipboard.writeText(texto).then(() => {
+                alert("Mensagem copiada! Basta colar no WhatsApp do seu cliente.");
+            });
+        }
+
+        function aplicarSessao() {
+            const auth = sessionStorage.getItem('smartgw_auth');
+            if (auth === 'true') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('tenantName').innerText = sessionStorage.getItem('smartgw_tenant') || "Smart GW";
+                document.getElementById('tenantDocDisplay').innerText = `Doc: ${sessionStorage.getItem('smartgw_doc') || ""}`;
+            } else {
+                document.getElementById('loginOverlay').classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.clear();
+            location.reload();
+        }
+
+        // Lógica Básica do PDV
+        let carrinho = [];
+        let destinoAtual = 'BALCAO';
+
+        function setDestino(tipo) {
+            destinoAtual = tipo;
+            const btnB = document.getElementById('btnBalcao');
+            const btnE = document.getElementById('btnEntrega');
+            const boxE = document.getElementById('boxEntregaDetalhes');
+
+            if (tipo === 'BALCAO') {
+                btnB.className = "py-2.5 rounded-xl text-xs font-bold bg-orange-500 text-slate-950 shadow flex items-center justify-center gap-2";
+                btnE.className = "py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white flex items-center justify-center gap-2";
+                boxE.classList.add('hidden');
+            } else {
+                btnE.className = "py-2.5 rounded-xl text-xs font-bold bg-orange-500 text-slate-950 shadow flex items-center justify-center gap-2";
+                btnB.className = "py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white flex items-center justify-center gap-2";
+                boxE.classList.remove('hidden');
+            }
+        }
+
+        function adicionarItem(nome, precoB, precoE) {
+            const preco = destinoAtual === 'BALCAO' ? precoB : precoE;
+            const item = carrinho.find(i => i.nome === nome);
+            if (item) item.qtd++;
+            else carrinho.push({ nome, preco, qtd: 1 });
+            renderizarCarrinho();
+        }
+
+        function renderizarCarrinho() {
+            const lista = document.getElementById('carrinhoLista');
+            if (carrinho.length === 0) {
+                lista.innerHTML = `<p class="text-center text-slate-500 py-6">Nenhum item adicionado ainda.</p>`;
+                document.getElementById('valorTotal').innerText = "R$ 0,00";
+                return;
+            }
+            let total = 0;
+            lista.innerHTML = carrinho.map((i, idx) => {
+                const sub = i.preco * i.qtd;
+                total += sub;
+                return `
+                    <div class="flex items-center justify-between p-2 bg-[#0c1527] rounded-xl border border-slate-800">
+                        <div>
+                            <p class="font-bold text-slate-200">${i.nome}</p>
+                            <span class="text-[10px] text-slate-400">${i.qtd}x R$ ${i.preco.toFixed(2)}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-orange-400">R$ ${sub.toFixed(2)}</span>
+                            <button onclick="carrinho.splice(${idx},1);renderizarCarrinho()" class="text-slate-500 hover:text-rose-400"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>`;
+            }).join('');
+            document.getElementById('valorTotal').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        }
+
+        function limparCarrinho() {
+            carrinho = [];
+            renderizarCarrinho();
+        }
+
+        function concluirVenda() {
+            if (carrinho.length === 0) return alert("Adicione produtos ao pedido.");
+            alert("Venda concluída com sucesso!");
+            limparCarrinho();
+        }
+
+        window.onload = aplicarSessao;
+    </script>
+</body>
+</html>
