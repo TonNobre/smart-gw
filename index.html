@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Smart GW - Sistema Comercial para Revendas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Desktop: Proporção aprovada em 110% */
+    @media (min-width: 1025px) {
+      html {
+        font-size: 17.6px;
+        zoom: 1.1;
+      }
+    }
+
+    /* Mobile: Transforma em App Nativo sem miniaturização */
+    @media (max-width: 1024px) {
+      html {
+        font-size: 15px !important;
+        zoom: 1 !important;
+      }
+      body {
+        padding-bottom: 72px; /* Espaço para a Bottom Bar do App */
+      }
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @media print {
+      body * { visibility: hidden !important; }
+      #printable-receipt-card, #printable-receipt-card * { visibility: visible !important; }
+      #printable-receipt-card { 
+        position: absolute; 
+        left: 0; 
+        top: 0; 
+        width: 100% !important; 
+        margin: 0 !important; 
+        padding: 0 !important;
+        border: none !important;
+      }
+    }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-[#0b1322] text-slate-100 flex flex-col min-h-screen overflow-x-hidden selection:bg-blue-600 selection:text-white">
+
+  <!-- CABEÇALHO GLOBAL (DESKTOP E TOPO DO APP NO CELULAR) -->
+  <header class="sticky top-0 bg-[#0f172a] border-b border-slate-800/80 px-4 md:px-6 py-2.5 flex items-center justify-between shadow-md shrink-0 z-30">
+    <div class="flex items-center gap-3">
+      <!-- Botão Menu Drawer exclusivo para Mobile -->
+      <button onclick="toggleMobileDrawer()" class="xl:hidden w-10 h-10 rounded-xl bg-slate-800 text-slate-200 flex items-center justify-center text-lg active:scale-95">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <!-- Logo & Empresa -->
+      <div onclick="abrirModalEmpresa()" class="flex items-center gap-2.5 cursor-pointer hover:opacity-85 transition group">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-xl shadow-lg shrink-0 overflow-hidden" id="header-logo-box">
+          <img id="header-logo-img" src="" class="w-full h-full object-cover hidden">
+          <span id="header-logo-text">GW</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-black text-sm md:text-base tracking-tight text-white group-hover:text-blue-400 leading-tight" id="header-empresa-nome">Smart GW</h1>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-500 hidden sm:inline"></i>
+          </div>
+          <p class="text-[10px] md:text-[11px] text-slate-400 font-mono" id="header-empresa-cnpj">CNPJ: 12.345.678/0001-90</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navegação Desktop (Visível apenas em telas grandes) -->
+    <nav class="hidden xl:flex items-center gap-1.5 bg-[#131d31] border border-slate-800/90 p-1.5 rounded-2xl">
+      <button onclick="setTab('dashboard')" id="btn-tab-dashboard" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-chart-line text-sm text-blue-400"></i> Início
+      </button>
+      <button onclick="setTab('pdv')" id="btn-tab-pdv" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition bg-blue-600 text-white shadow flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-cash-register text-sm"></i> Caixa PDV
+      </button>
+      <button onclick="setTab('whatsapp')" id="btn-tab-whatsapp" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i> WhatsApp IA
+      </button>
+      <button onclick="setTab('clientes')" id="btn-tab-clientes" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-users text-sm text-emerald-400"></i> Clientes (CRM)
+      </button>
+      <button onclick="setTab('vasilhames')" id="btn-tab-vasilhames" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-boxes-stacked text-sm text-orange-400"></i> Estoque
+      </button>
+      <button onclick="setTab('configuracoes')" id="btn-tab-configuracoes" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-gear text-sm text-amber-400"></i> Configurações
+      </button>
+    </nav>
+
+    <!-- Operador Atual -->
+    <div onclick="abrirModalMeuPerfil()" class="text-right border-l border-slate-800 pl-3 md:pl-4 cursor-pointer hover:opacity-80 transition flex items-center gap-2.5 shrink-0">
+      <div class="hidden sm:block">
+        <span class="text-[10px] font-black uppercase text-slate-400 block tracking-wider" id="header-cargo-label">Proprietário</span>
+        <span class="text-xs font-black text-emerald-400 font-mono" id="header-operador-nome">Wellington Gontijo</span>
+      </div>
+      <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xs font-black overflow-hidden" id="header-avatar-box">
+        <img id="header-avatar-img" src="" class="w-full h-full object-cover hidden">
+        <i id="header-avatar-icon" class="fa-solid fa-user"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- GAVETA LATERAL DE MENU MOBILE (DRAWER) -->
+  <div id="mobile-drawer" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden transition-opacity">
+    <div class="w-72 bg-[#0f172a] h-full p-5 flex flex-col justify-between border-r border-slate-800 shadow-2xl">
+      <div class="space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-orange-500 text-white font-black flex items-center justify-center">GW</div>
+            <span class="font-black text-white text-base">Menu do App</span>
+          </div>
+          <button onclick="toggleMobileDrawer()" class="text-slate-400 hover:text-white text-xl">✕</button>
+        </div>
+
+        <nav class="space-y-1.5 text-sm font-bold">
+          <button onclick="setTab('dashboard'); toggleMobileDrawer();" class="w-full p-3 rounded-xl flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white">
+            <i class="fa-solid fa-chart-line text-blue-400 w-5"></i> Início
+          </button>
+          <button onclick="setTab('pdv'); toggleMobileDrawer();" class="w-full p-3 rounded-xl flex items-center gap-3 text-white bg-blue-600 shadow">
+            <i class="fa-solid fa-cash-register w-5"></i> Caixa PDV
+          </button>
+          <button onclick="setTab('whatsapp'); toggleMobileDrawer();" class="w-full p-3 rounded-xl flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white">
+            <i class="fa-brands fa-whatsapp text-emerald-400 w-5"></i> WhatsApp IA
+          </button>
+          <button onclick="setTab('clientes'); toggleMobileDrawer();" class="w-full p-3 rounded-xl flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white">
+            <i class="fa-solid fa-users text-emerald-400 w-5"></i> Clientes (CRM)
+          </button>
+          <button onclick="setTab('vasilhames'); toggleMobileDrawer();" class="w-full p-3 rounded-xl flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white">
+            <i class="fa-solid fa-boxes-stacked text-orange-400 w-5"></i> Estoque (5 Gavetas)
+          </button>
+          <button onclick="setTab('configuracoes'); toggleMobileDrawer();" class="w-full p-3 rounded-xl flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white">
+            <i class="fa-solid fa-gear text-amber-400 w-5"></i> Configurações
+          </button>
+        </nav>
+      </div>
+
+      <div class="border-t border-slate-800 pt-4">
+        <div class="text-xs text-slate-400 mb-2">Conectado como:</div>
+        <div class="text-sm font-bold text-white">Wellington Gontijo</div>
+        <div class="text-[11px] text-emerald-400 font-mono">Modo Teste 30 Dias Ativo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 p-3.5 md:p-6 custom-scroll">
+
+    <!-- ============================================================ -->
+    <!-- 1. INÍCIO (6 CARDS PADRONIZADOS E RELATÓRIO COM FILTROS)     -->
+    <!-- ============================================================ -->
+    <div id="view-dashboard" class="view-panel hidden space-y-5 max-w-7xl mx-auto">
+      <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-5 md:p-7 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-bold text-blue-400 mb-1">
+            <i class="fa-regular fa-calendar-days"></i>
+            <span id="dashboard-datetime">Domingo, 25 de outubro de 2026</span>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-black text-white tracking-tight">Painel Principal</h2>
+          <p class="text-slate-400 text-xs md:text-sm mt-0.5">Visão consolidada da operação e finanças da revenda.</p>
+        </div>
+        <button onclick="setTab('pdv')" class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition active:scale-95">
+          <i class="fa-solid fa-plus-circle text-base"></i> Abrir Caixa PDV
+        </button>
+      </div>
+
+      <!-- Grade dos 6 Cards Idênticos -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        <!-- Card 1: Faturamento Hoje -->
+        <div onclick="abrirRelatorioFaturamento()" class="bg-[#131d31] border border-slate-800 hover:border-emerald-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Faturamento Hoje</span>
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-chart-pie"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-emerald-400 font-mono" id="dash-faturamento-total">R$ 2.450,00</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Clique para abrir o relatório com filtros</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Total de Vendas -->
+        <div onclick="abrirRelatorioPedidos()" class="bg-[#131d31] border border-slate-800 hover:border-blue-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Total de Vendas</span>
+            <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-receipt"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-white font-mono" id="dash-vendas-qtd">21 Pedidos</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Clique para ver vendas por atendente</p>
+          </div>
+        </div>
+
+        <!-- Card 3: Entregas -->
+        <div onclick="abrirModalEntregas()" class="bg-[#131d31] border border-slate-800 hover:border-cyan-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Entregas</span>
+            <div class="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-motorcycle"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-cyan-400 font-mono" id="dash-qtd-entregas">3 Entregas</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Clique para ver rotas e motoboys</p>
+          </div>
+        </div>
+
+        <!-- Card 4: Despesas -->
+        <div onclick="abrirModalDespesa()" class="bg-[#131d31] border border-slate-800 hover:border-rose-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Despesas & Sangrias</span>
+            <div class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-xl font-black text-white">Cadastrar Despesa</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Lançar saída ou retirada do caixa</p>
+          </div>
+        </div>
+
+        <!-- Card 5: Estoque -->
+        <div onclick="setTab('vasilhames')" class="bg-[#131d31] border border-slate-800 hover:border-orange-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Patrimônio de Cascos</span>
+            <div class="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-xl font-black text-white">Ver o Estoque</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Consultar gavetas e saldo de pátio</p>
+          </div>
+        </div>
+
+        <!-- Card 6: Clientes -->
+        <div onclick="abrirModalCliente()" class="bg-[#131d31] border border-slate-800 hover:border-emerald-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Gestão de Carteira</span>
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-user-plus"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-xl font-black text-white">Cadastrar Clientes</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Novo cliente com busca rápida por CEP</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 2. CAIXA PDV (RESPONSIVO: COLUNA ÚNICA MOBILE, DUPLA DESK)  -->
+    <!-- ============================================================ -->
+    <div id="view-pdv" class="view-panel grid grid-cols-1 lg:grid-cols-12 gap-5 items-start max-w-[1440px] mx-auto">
+      
+      <!-- Lado Esquerdo: Produtos e Cliente -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        
+        <!-- Topo: Tipo de Saída + Sangria/Caixa -->
+        <div class="bg-[#131d31] border border-slate-800/80 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black text-slate-400 uppercase tracking-wider">SAÍDA:</span>
+            <div class="flex gap-1.5">
+              <button onclick="setDestino('BALCAO')" id="btn-destino-balcao" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition bg-blue-600 text-white shadow flex items-center gap-1.5">
+                <i class="fa-solid fa-store"></i> <span id="txt-btn-balcao">Balcão (Portaria)</span>
+              </button>
+              <button onclick="setDestino('ENTREGA')" id="btn-destino-entrega" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                <i class="fa-solid fa-motorcycle"></i> <span id="txt-btn-entrega">Tele-Entrega</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="abrirModalSangriaRapida()" class="bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/50 px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5">
+              <i class="fa-solid fa-hand-holding-dollar text-xs"></i> Sangria
+            </button>
+            <button onclick="gerenciarStatusCaixa()" id="btn-status-caixa-pdv" class="bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-800/50 px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5">
+              <i class="fa-solid fa-lock text-xs"></i> Fechar Caixa
+            </button>
+          </div>
+        </div>
+
+        <!-- Grade de Produtos -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+          <!-- Card P13 -->
+          <div onclick="adicionarItem('P13')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group active:scale-98">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-11 h-11 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-fire"></i>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg">Retornável</span>
+              </div>
+              <h3 class="font-extrabold text-white text-base leading-snug">Botijão GLP 13kg</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Carga Tradicional P13</p>
+            </div>
+            <div class="mt-5 pt-3 border-t border-slate-800/60 flex items-baseline justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 block" id="tag-preco-p13">Preço Balcão</span>
+                <span class="text-2xl font-black text-white font-mono" id="val-preco-p13">R$ 115,00</span>
+              </div>
+              <span class="text-xs text-slate-500 font-mono">Custo: R$ 75,00</span>
+            </div>
+          </div>
+
+          <!-- Card Água 20L -->
+          <div onclick="adicionarItem('G20L')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group active:scale-98">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-11 h-11 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-bottle-water"></i>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg">Retornável</span>
+              </div>
+              <h3 class="font-extrabold text-white text-base leading-snug">Galão Água 20L</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Mineral Fonte Natural</p>
+            </div>
+            <div class="mt-5 pt-3 border-t border-slate-800/60 flex items-baseline justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 block" id="tag-preco-agua">Preço Balcão</span>
+                <span class="text-2xl font-black text-white font-mono" id="val-preco-agua">R$ 14,00</span>
+              </div>
+              <span class="text-xs text-slate-500 font-mono">Custo: R$ 6,50</span>
+            </div>
+          </div>
+
+          <!-- Card Gelo 5kg -->
+          <div onclick="adicionarItem('GELO5')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group active:scale-98">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-snowflake"></i>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-lg">Descartável</span>
+              </div>
+              <h3 class="font-extrabold text-white text-base leading-snug">Gelo em Cubos 5kg</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Filtrado & Cristalino</p>
+            </div>
+            <div class="mt-5 pt-3 border-t border-slate-800/60 flex items-baseline justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 block" id="tag-preco-gelo">Preço Balcão</span>
+                <span class="text-2xl font-black text-white font-mono" id="val-preco-gelo">R$ 12,00</span>
+              </div>
+              <span class="text-xs text-slate-500 font-mono">Custo: R$ 5,00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Identificação do Cliente -->
+        <div class="bg-[#131d31] border border-slate-800/80 rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-300">
+              <i class="fa-solid fa-user-tag text-blue-400"></i> Identificação do Cliente
+            </div>
+            <button onclick="abrirModalCliente()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1 shadow">
+              <i class="fa-solid fa-user-plus text-[10px]"></i> + Cadastrar Cliente
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
+            <div class="md:col-span-4">
+              <label class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Nome</label>
+              <input type="text" id="cli-nome" value="LORRANE DA COSTA TAVARES" class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl px-3 py-2 text-slate-200 outline-none font-bold">
+            </div>
+            <div class="md:col-span-3">
+              <label class="block text-[10px] text-slate-400 uppercase font-bold mb-1">WhatsApp</label>
+              <input type="text" id="cli-fone" value="(61) 99592-6936" class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl px-3 py-2 text-slate-200 outline-none">
+            </div>
+            <div class="md:col-span-5">
+              <label class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Endereço de Entrega</label>
+              <input type="text" id="cli-end" value="Quadra QR 204 Conjunto 1, 3 — casa" class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl px-3 py-2 text-slate-200 outline-none">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lado Direito: Comanda & Fechamento -->
+      <div class="lg:col-span-5 bg-[#131d31] border border-slate-800/80 rounded-2xl shadow-xl flex flex-col justify-between overflow-hidden">
+        <div>
+          <div class="p-4 border-b border-slate-800 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2 text-sm font-black text-white">
+              <i class="fa-solid fa-cart-shopping text-blue-400"></i> Itens do Pedido
+            </div>
+            <button onclick="limparPedido()" class="text-xs text-slate-400 hover:text-rose-400 font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-trash-can"></i> Limpar
+            </button>
+          </div>
+
+          <div class="p-4 max-h-[190px] overflow-y-auto space-y-3 custom-scroll" id="container-itens-carrinho">
+            <div id="carrinho-vazio" class="h-32 flex flex-col items-center justify-center text-slate-500">
+              <i class="fa-solid fa-basket-shopping text-3xl mb-1.5 opacity-30"></i>
+              <span class="text-xs font-bold text-slate-400">Nenhum produto adicionado.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 space-y-3 bg-[#101827] shrink-0">
+          <div>
+            <span class="block text-[10px] font-black uppercase text-slate-400 mb-1.5 tracking-wider">FORMA DE PAGAMENTO:</span>
+            <div class="grid grid-cols-3 gap-2" id="grid-formas-pagamento-pdv"></div>
+          </div>
+
+          <div class="space-y-1 pt-1.5 border-t border-slate-800/80">
+            <div class="flex justify-between text-xs text-slate-400">
+              <span>Subtotal Produtos:</span>
+              <span class="font-mono text-slate-300" id="lbl-subtotal">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between items-center pt-0.5">
+              <span class="text-sm font-black text-white tracking-wide uppercase">TOTAL A COBRAR:</span>
+              <span class="text-3xl font-black text-white font-mono tracking-tight" id="lbl-total-cobrar">R$ 0,00</span>
+            </div>
+          </div>
+
+          <button onclick="cliqueConcluirVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm py-3.5 rounded-xl uppercase tracking-wider transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 active:scale-95">
+            <i class="fa-solid fa-circle-check text-base"></i> CONCLUIR VENDA & EMITIR CUPOM
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 3. MÓDULO WHATSAPP (COM CADASTRO E VENDA IMEDIATA NO PDV)   -->
+    <!-- ============================================================ -->
+    <div id="view-whatsapp" class="view-panel hidden space-y-4 max-w-7xl mx-auto h-[calc(100vh-140px)] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-brands fa-whatsapp text-emerald-400 text-3xl"></i> Central WhatsApp & Triagem Inteligente
+          </h2>
+          <p class="text-slate-400 text-xs">Atenda clientes, cadastre contatos em 1 clique e lance pedidos diretos no PDV.</p>
+        </div>
+        <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-black">
+          ● Triagem IA Conectada
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 overflow-hidden">
+        <!-- Lista de Conversas -->
+        <div class="md:col-span-4 bg-[#131d31] border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
+          <div class="p-3 border-b border-slate-800">
+            <input type="text" placeholder="Buscar conversa..." class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
+          </div>
+          <div class="overflow-y-auto custom-scroll flex-1 p-2 space-y-2">
+            <div onclick="carregarChatWhats('Lorrane Tavares', '(61) 99592-6936', 'Quadra QR 204 Conjunto 1, 3 — casa')" class="p-3 bg-blue-600/20 border border-blue-500/40 rounded-xl cursor-pointer">
+              <div class="flex justify-between items-center">
+                <strong class="text-white text-xs">Lorrane Tavares</strong>
+                <span class="text-[10px] text-slate-400 font-mono">10:14</span>
+              </div>
+              <p class="text-slate-300 text-[11px] truncate mt-0.5">Bom dia! Tem como mandar um gás aqui na QR 204?</p>
+              <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[9px] px-2 py-0.5 rounded font-black mt-1">Interessada em P13</span>
+            </div>
+
+            <div onclick="carregarChatWhats('Novo Cliente (Samambaia)', '(61) 98444-1122', '')" class="p-3 bg-[#0b1322] hover:bg-slate-800/60 rounded-xl cursor-pointer border border-slate-800">
+              <div class="flex justify-between items-center">
+                <strong class="text-white text-xs">Novo Contato (Não Cadastrado)</strong>
+                <span class="text-[10px] text-slate-400 font-mono">09:50</span>
+              </div>
+              <p class="text-slate-400 text-[11px] truncate mt-0.5">Olá, qual o valor do galão de água de 20L?</p>
+              <span class="inline-block bg-amber-500/10 text-amber-400 text-[9px] px-2 py-0.5 rounded font-black mt-1">Não Cadastrado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Central -->
+        <div class="md:col-span-8 bg-[#131d31] border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
+          <div class="p-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 bg-[#0f172a]">
+            <div>
+              <strong class="text-white text-sm block" id="whats-chat-nome">Lorrane Tavares</strong>
+              <span class="text-slate-400 text-xs font-mono" id="whats-chat-sub">(61) 99592-6936 • Quadra QR 204 Conjunto 1, 3</span>
+            </div>
+            <!-- Botão Cadastrar & Vender Direto no PDV -->
+            <button onclick="cadastrarClienteEVenderViaWhats()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 active:scale-95">
+              <i class="fa-solid fa-bolt"></i> Cadastrar & Vender no PDV
+            </button>
+          </div>
+
+          <div class="flex-1 p-4 overflow-y-auto custom-scroll space-y-3 bg-[#0b1322]" id="whats-mensagens-box">
+            <div class="bg-slate-800/80 p-3 rounded-2xl max-w-md text-xs text-slate-200">
+              Olá! Gostaria de pedir um botijão de gás P13 para entregar aqui na Quadra QR 204 Conjunto 1, 3.
+            </div>
+            <div class="bg-emerald-950/60 border border-emerald-500/30 p-3 rounded-2xl max-w-md ml-auto text-xs text-emerald-200 space-y-1">
+              <div class="text-[10px] font-black uppercase text-emerald-400"><i class="fa-solid fa-robot mr-1"></i> Resposta Automática da IA:</div>
+              <p>Bom dia! O Botijão GLP 13kg sai por R$ 115,00 com entrega imediata. Vamos confirmar o pedido?</p>
+            </div>
+          </div>
+
+          <div class="p-3 border-t border-slate-800 bg-[#0f172a] flex gap-2">
+            <input type="text" placeholder="Digite uma mensagem..." class="flex-1 bg-[#0b1322] border border-slate-700 rounded-xl px-4 py-2 text-xs text-white outline-none">
+            <button class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-xs font-black transition">Enviar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEMAIS TELAS PRESERVADAS (CLIENTES, ESTOQUE, CONFIGURAÇÕES) -->
+    <div id="view-clientes" class="view-panel hidden space-y-6 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-black text-white">Clientes (CRM)</h2>
+        <button onclick="abrirModalCliente()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black">+ Novo Cliente</button>
+      </div>
+      <div class="bg-[#131d31] p-4 rounded-2xl border border-slate-800 text-xs text-slate-300">
+        Gestão completa da carteira de clientes com controle de limite de crédito comercial e endereços.
+      </div>
+    </div>
+
+    <div id="view-vasilhames" class="view-panel hidden space-y-6 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-black text-white">Estoque (5 Gavetas)</h2>
+      </div>
+      <div class="bg-[#131d31] p-4 rounded-2xl border border-slate-800 text-xs text-slate-300">
+        Controle de cheios, vazios, trânsito, avarias e faltas de botijões P13 e galões de água 20L.
+      </div>
+    </div>
+
+    <div id="view-configuracoes" class="view-panel hidden space-y-6 max-w-7xl mx-auto">
+      <h2 class="text-2xl font-black text-white">Configurações do Sistema</h2>
+      <div class="bg-[#131d31] p-4 rounded-2xl border border-slate-800 text-xs text-slate-300">
+        Parâmetros tributários, emissão NFC-e/NF-e SEFAZ, taxas das maquinetas e controle de colaboradores.
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- BARRA DE NAVEGAÇÃO NATIVA INFERIOR (BOTTOM BAR EXCLUSIVA MOBILE) -->
+  <!-- ============================================================ -->
+  <div class="xl:hidden fixed bottom-0 left-0 right-0 bg-[#0f172a] border-t border-slate-800 px-3 py-2 flex items-center justify-around z-40 shadow-2xl">
+    <button onclick="setTab('dashboard')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white">
+      <i class="fa-solid fa-chart-line text-lg text-blue-400"></i>
+      <span class="text-[10px] font-bold">Início</span>
+    </button>
+    <button onclick="setTab('pdv')" class="flex flex-col items-center gap-1 text-blue-500 font-black">
+      <div class="w-10 h-10 -mt-5 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/40 border-2 border-[#0f172a]">
+        <i class="fa-solid fa-cash-register text-base"></i>
+      </div>
+      <span class="text-[10px]">Caixa</span>
+    </button>
+    <button onclick="setTab('whatsapp')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white">
+      <i class="fa-brands fa-whatsapp text-lg text-emerald-400"></i>
+      <span class="text-[10px] font-bold">WhatsApp</span>
+    </button>
+    <button onclick="setTab('vasilhames')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white">
+      <i class="fa-solid fa-boxes-stacked text-lg text-orange-400"></i>
+      <span class="text-[10px] font-bold">Estoque</span>
+    </button>
+    <button onclick="toggleMobileDrawer()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white">
+      <i class="fa-solid fa-ellipsis text-lg text-amber-400"></i>
+      <span class="text-[10px] font-bold">Mais</span>
+    </button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: RELATÓRIO DE FATURAMENTO COM FILTROS DE DIA/MÊS/ANO   -->
+  <!-- ============================================================ -->
+  <div id="modal-faturamento" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-xl w-full p-5 md:p-6 shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-black text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-emerald-400"></i> Relatório de Faturamento
+        </h3>
+        <button onclick="fecharModal('modal-faturamento')" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Barra de Filtros -->
+      <div class="bg-[#0b1322] p-3 rounded-2xl border border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div>
+          <label class="block text-slate-400 font-bold mb-1 text-[10px] uppercase">Período:</label>
+          <select id="filtro-faturamento-periodo" onchange="aplicarFiltrosFaturamento()" class="w-full bg-[#131d31] border border-slate-700 rounded-xl p-2 text-white font-bold outline-none text-xs">
+            <option value="HOJE">Hoje (Dia)</option>
+            <option value="MES">Mês Atual</option>
+            <option value="ANO">Ano Atual</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-bold mb-1 text-[10px] uppercase">Forma de Pagto:</label>
+          <select id="filtro-faturamento-pagamento" onchange="aplicarFiltrosFaturamento()" class="w-full bg-[#131d31] border border-slate-700 rounded-xl p-2 text-white font-bold outline-none text-xs">
+            <option value="TODAS">Todas</option>
+            <option value="DINHEIRO">Dinheiro</option>
+            <option value="PIX">Pix</option>
+            <option value="DEBITO">Débito</option>
+            <option value="CREDITO">Crédito</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-bold mb-1 text-[10px] uppercase">Atendente:</label>
+          <select id="filtro-faturamento-atendente" onchange="aplicarFiltrosFaturamento()" class="w-full bg-[#131d31] border border-slate-700 rounded-xl p-2 text-white font-bold outline-none text-xs">
+            <option value="TODOS">Todos</option>
+            <option value="Wellington Gontijo">Wellington</option>
+            <option value="Jhony">Jhony</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div class="bg-[#0b1322] p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+          <span class="text-slate-400 font-bold uppercase text-[11px]">Total Faturado no Filtro:</span>
+          <strong class="text-2xl font-black text-emerald-400 font-mono" id="lbl-faturamento-filtrado-total">R$ 2.450,00</strong>
+        </div>
+
+        <div class="bg-[#0b1322] p-3 rounded-xl border border-slate-800 space-y-1.5 font-mono text-xs">
+          <div class="flex justify-between text-slate-300"><span>• Dinheiro em Gaveta:</span><strong id="faturamento-val-dinheiro">R$ 450,00</strong></div>
+          <div class="flex justify-between text-slate-300"><span>• Pix Instantâneo:</span><strong id="faturamento-val-pix">R$ 980,00</strong></div>
+          <div class="flex justify-between text-slate-300"><span>• Cartão Débito:</span><strong id="faturamento-val-debito">R$ 420,00</strong></div>
+          <div class="flex justify-between text-slate-300"><span>• Cartão Crédito:</span><strong id="faturamento-val-credito">R$ 488,00</strong></div>
+        </div>
+
+        <div class="bg-emerald-950/30 border border-emerald-500/20 p-3 rounded-xl flex justify-between items-center text-emerald-400">
+          <span class="font-bold">Lucro Líquido Real Apurado:</span>
+          <strong class="text-base font-black font-mono" id="lbl-faturamento-lucro-real">R$ 770,00</strong>
+        </div>
+      </div>
+
+      <button onclick="fecharModal('modal-faturamento')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-xl font-bold">
+        Fechar Relatório
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: CUPOM NÃO FISCAL COM COMPARTILHAR WHATSAPP DUPLO      -->
+  <!-- ============================================================ -->
+  <div id="modal-cupom" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-[640px] w-full p-4 md:p-6 shadow-2xl flex flex-col max-h-[94vh] text-slate-900 border border-slate-200">
+      
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3 shrink-0">
+        <div>
+          <h2 class="text-lg md:text-xl font-bold tracking-tight text-slate-900">Cupom não fiscal</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">Comprovante de venda.<br>Não é documento fiscal: se a nota for emitida depois, ela é que vale.</p>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs" id="box-seletor-vias-cupom">
+            <button onclick="alternarViaCupom('CLIENTE')" id="btn-via-cliente" class="px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow">Via do cliente</button>
+            <button onclick="alternarViaCupom('ENTREGADOR')" id="btn-via-entregador" class="px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition">Via do entregador</button>
+          </div>
+          <button onclick="fecharCupom()" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-1.5">✕</button>
+        </div>
+      </div>
+
+      <div class="overflow-y-auto custom-scroll p-3 md:p-4 bg-white border border-slate-200 rounded-xl flex-1" id="printable-receipt-card">
+        <div class="font-mono text-xs text-slate-900 leading-normal space-y-1.5 max-w-[540px] mx-auto">
+          <div class="text-center">
+            <div class="font-extrabold text-sm uppercase">OPTIMUS PRIME PROMOCOES LTDA</div>
+            <div class="font-bold text-xs">SMART GW DISTRIBUIDORA</div>
+            <div class="text-[11px] text-slate-600">CNPJ 64.439.117/0001-59 — IE 0846086900160</div>
+            <div class="text-[11px] text-slate-600">QUADRA QR 204 CONJUNTO 1, SN, LOTE 03 PARTE A</div>
+            <div class="text-[11px] text-slate-600">SAMAMBAIA NORTE — BRASILIA/DF</div>
+          </div>
+
+          <div class="border-b border-dashed border-slate-400 my-1"></div>
+
+          <!-- BLOCO CONDICIONAL: VIA DO ENTREGADOR -->
+          <div id="bloco-via-entregador" class="hidden space-y-0.5 text-xs py-1 border-b border-dashed border-slate-400 mb-1">
+            <div class="font-black text-center text-xs uppercase tracking-wider mb-1">VIA DO ENTREGADOR</div>
+            <div><strong>Cliente:</strong> <span id="cupom-entregador-nome" class="font-bold">LORRANE DA COSTA TAVARES</span></div>
+            <div><strong>Telefone:</strong> <span id="cupom-entregador-fone">(61) 99592-6936</span></div>
+            <div><strong>Endereço:</strong> <span id="cupom-entregador-end">Quadra QR 204 Conjunto 1, 3 — casa</span></div>
+            <div><strong>Entregador Despachado:</strong> <span id="cupom-entregador-despachado" class="font-bold text-emerald-700">Marcos (Moto 01)</span></div>
+          </div>
+
+          <div class="text-center">
+            <div class="font-black text-xs uppercase tracking-wider">CUPOM NÃO FISCAL</div>
+          </div>
+
+          <div class="pt-1">
+            <div class="flex justify-between text-[11px] text-slate-700 font-bold pb-1 border-b border-dashed border-slate-300">
+              <span class="w-20">Cód.</span>
+              <span class="flex-1 px-2">Descrição</span>
+              <span class="w-16 text-center">Qtd Un</span>
+              <span class="w-16 text-right">Total</span>
+            </div>
+            <div id="cupom-linhas-produtos" class="space-y-1 py-1.5 text-xs"></div>
+          </div>
+
+          <div class="border-b border-dashed border-slate-400 my-1"></div>
+
+          <div class="space-y-1 text-xs">
+            <div class="flex justify-between font-black text-sm pt-1">
+              <span>Valor pago</span>
+              <span id="cupom-valor-pago">R$ 115,00</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Forma de Pagamento:</span>
+              <span id="cupom-forma-label">Dinheiro</span>
+            </div>
+          </div>
+
+          <div class="border-b border-dashed border-slate-400 my-1"></div>
+
+          <div class="text-center text-[11px] space-y-0.5 text-slate-500">
+            <div>Pedido nº <span id="cupom-pedido-num">27</span></div>
+            <div>Atendente: <span id="cupom-atendente-nome">Wellington Gontijo</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Ações do Cupom com Envio WhatsApp Específico para a Via Ativa -->
+      <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-200 shrink-0 text-xs">
+        <button onclick="window.print()" class="bg-[#15616d] hover:bg-[#0e424a] text-white px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow">
+          <i class="fa-solid fa-print"></i> Imprimir
+        </button>
+        <button onclick="baixarPDFCupom()" class="border border-slate-300 hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-download"></i> PDF
+        </button>
+        <!-- Disparo WhatsApp Dinâmico (Cliente ou Entregador) -->
+        <button onclick="enviarWhatsAppViaAtiva()" id="btn-whats-cupom-dinamico" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow">
+          <i class="fa-brands fa-whatsapp text-sm"></i> <span id="txt-btn-whats-cupom">WhatsApp do Cliente</span>
+        </button>
+        <button onclick="fecharCupom()" class="border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl font-bold transition ml-auto">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CARREGAMENTO DE TELE-ENTREGA -->
+  <div id="modal-criar-carregamento" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-black text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-motorcycle text-cyan-400"></i> Criar Carregamento para Entrega
+        </h3>
+        <button onclick="fecharModal('modal-criar-carregamento')" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-slate-400 font-bold mb-1">Entregador Responsável pelo Despacho</label>
+          <select id="carregamento-entregador-select" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-3 text-white font-bold outline-none text-sm"></select>
+        </div>
+
+        <div class="bg-[#0b1322] p-3.5 rounded-2xl border border-slate-800 space-y-1.5 font-mono">
+          <div class="flex justify-between text-slate-300"><span>Cliente:</span><strong class="text-white" id="carregamento-preview-cliente">LORRANE DA COSTA TAVARES</strong></div>
+          <div class="flex justify-between text-slate-300"><span>Endereço:</span><span class="text-slate-400 truncate max-w-[240px]" id="carregamento-preview-endereco">Quadra QR 204 Conjunto 1, 3</span></div>
+          <div class="flex justify-between text-slate-300"><span>Total a Cobrar:</span><strong class="text-emerald-400 font-bold text-sm" id="carregamento-preview-total">R$ 115,00</strong></div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2 border-t border-slate-800">
+        <button onclick="fecharModal('modal-criar-carregamento')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold transition">Cancelar</button>
+        <button onclick="confirmarCarregamentoEDespachar()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-black transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/30">
+          <i class="fa-solid fa-paper-plane"></i> Confirmar Despacho
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT PRINCIPAL -->
+  <script>
+    let destinoAtual = 'BALCAO';
+    let formaPagamentoAtual = 'DINHEIRO';
+    let carrinho = [];
+    let viaCupomAtual = 'CLIENTE';
+    let entregadorDespachadoAtual = null;
+
+    let formasPagamento = [
+      { id: 'DINHEIRO', nome: 'Dinheiro', taxa: 0.00, icone: 'fa-solid fa-money-bill-wave text-emerald-400' },
+      { id: 'PIX', nome: 'Pix (0.99%)', taxa: 0.0099, icone: 'fa-brands fa-pix text-emerald-400' },
+      { id: 'DEBITO', nome: 'Débito (1.89%)', taxa: 0.0189, icone: 'fa-solid fa-credit-card text-cyan-400' },
+      { id: 'CREDITO', nome: 'Crédito (3.49%)', taxa: 0.0349, icone: 'fa-regular fa-credit-card text-blue-400' },
+      { id: 'CARTAO_GAS', nome: 'Cartão Gás', taxa: 0.02, icone: 'fa-solid fa-hand-holding-dollar text-amber-400' },
+      { id: 'PRAZO', nome: 'A Prazo', taxa: 0.00, icone: 'fa-solid fa-file-invoice-dollar text-rose-400' }
+    ];
+
+    let produtos = [
+      { id: 'P13', nome: 'Botijão GLP 13kg', precoBalcao: 115.00, precoEntrega: 125.00, custo: 75.00 },
+      { id: 'G20L', nome: 'Galão Água 20L', precoBalcao: 14.00, precoEntrega: 18.00, custo: 6.50 },
+      { id: 'GELO5', nome: 'Gelo em Cubos 5kg', precoBalcao: 12.00, precoEntrega: 15.00, custo: 5.00 }
+    ];
+
+    let colaboradores = [
+      { id: 1, nomeGuerra: 'Wellington Gontijo', cargo: 'PROPRIETARIO', cargoLabel: 'Proprietário', fone: '5561987654321' },
+      { id: 2, nomeGuerra: 'Jhony', cargo: 'ATENDENTE', cargoLabel: 'Atendente', fone: '5561992223333' },
+      { id: 3, nomeGuerra: 'Marcos (Moto 01)', cargo: 'ENTREGADOR', cargoLabel: 'Entregador', fone: '5561983334444' }
+    ];
+
+    function toggleMobileDrawer() {
+      document.getElementById('mobile-drawer').classList.toggle('hidden');
+    }
+
+    function setTab(tabId) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('bg-blue-600', 'text-white', 'shadow');
+        b.classList.add('text-slate-300');
+      });
+
+      document.getElementById('view-' + tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('btn-tab-' + tabId);
+      if(activeBtn) {
+        activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow');
+        activeBtn.classList.remove('text-slate-300');
+      }
+    }
+
+    // ==========================================
+    // WHATSAPP: CADASTRO E VENDA IMEDIATA NO PDV
+    // ==========================================
+    function carregarChatWhats(nome, fone, end) {
+      document.getElementById('whats-chat-nome').textContent = nome;
+      document.getElementById('whats-chat-sub').textContent = `${fone} • ${end || 'Endereço pendente'}`;
+    }
+
+    function cadastrarClienteEVenderViaWhats() {
+      const nome = document.getElementById('whats-chat-nome').textContent;
+      const sub = document.getElementById('whats-chat-sub').textContent;
+      const partes = sub.split('•');
+      const fone = partes[0] ? partes[0].trim() : '(61) 98888-0000';
+      const end = partes[1] ? partes[1].trim() : 'Quadra QR 204 Conjunto 1, 3 — casa';
+
+      // Passa para o PDV já preenchido
+      document.getElementById('cli-nome').value = nome;
+      document.getElementById('cli-fone').value = fone;
+      document.getElementById('cli-end').value = end;
+
+      setDestino('ENTREGA');
+      setTab('pdv');
+      alert(`Cliente ${nome} selecionado! Pronto para registrar o pedido no Caixa PDV.`);
+    }
+
+    // ==========================================
+    // CAIXA PDV & CONCLUSÃO CONDICIONAL
+    // ==========================================
+    function cliqueConcluirVenda() {
+      if (carrinho.length === 0) adicionarItem('P13');
+
+      if (destinoAtual === 'BALCAO') {
+        document.getElementById('box-seletor-vias-cupom').classList.add('hidden');
+        document.getElementById('bloco-via-entregador').classList.add('hidden');
+        entregadorDespachadoAtual = null;
+        finalizarVenda();
+      } else {
+        abrirModalCriarCarregamento();
+      }
+    }
+
+    function abrirModalCriarCarregamento() {
+      const selectMotoboy = document.getElementById('carregamento-entregador-select');
+      const entregadores = colaboradores.filter(c => c.cargo === 'ENTREGADOR' || c.cargo === 'PROPRIETARIO');
+      selectMotoboy.innerHTML = entregadores.map(e => `
+        <option value="${e.nomeGuerra}">${e.nomeGuerra} (${e.cargoLabel})</option>
+      `).join('');
+
+      document.getElementById('carregamento-preview-cliente').textContent = document.getElementById('cli-nome').value.trim() || 'Cliente';
+      document.getElementById('carregamento-preview-endereco').textContent = document.getElementById('cli-end').value.trim() || 'Endereço pendente';
+      document.getElementById('carregamento-preview-total').textContent = document.getElementById('lbl-total-cobrar').textContent;
+
+      document.getElementById('modal-criar-carregamento').classList.remove('hidden');
+    }
+
+    function confirmarCarregamentoEDespachar() {
+      const motoboyNome = document.getElementById('carregamento-entregador-select').value;
+      entregadorDespachadoAtual = colaboradores.find(c => c.nomeGuerra === motoboyNome) || colaboradores[2];
+
+      document.getElementById('cupom-entregador-despachado').textContent = motoboyNome;
+      fecharModal('modal-criar-carregamento');
+
+      document.getElementById('box-seletor-vias-cupom').classList.remove('hidden');
+      finalizarVenda();
+    }
+
+    function finalizarVenda() {
+      const clienteNome = document.getElementById('cli-nome').value.trim() || 'LORRANE DA COSTA TAVARES';
+      const clienteEnd = document.getElementById('cli-end').value.trim() || 'Quadra QR 204 Conjunto 1, 3 — casa';
+      const totalFinal = carrinho.reduce((acc, i) => acc + (i.preco * i.qtd), 0);
+
+      document.getElementById('cupom-entregador-nome').textContent = clienteNome.toUpperCase();
+      document.getElementById('cupom-entregador-end').textContent = clienteEnd;
+      document.getElementById('cupom-valor-pago').textContent = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('cupom-forma-label').textContent = formaPagamentoAtual;
+
+      document.getElementById('cupom-linhas-produtos').innerHTML = carrinho.map(item => `
+        <div class="flex justify-between items-center text-xs">
+          <span class="w-20 truncate">${item.id}</span>
+          <span class="flex-1 px-2 font-bold">${item.nome}</span>
+          <span class="w-16 text-center">${item.qtd}.000 un</span>
+          <span class="w-16 text-right font-bold">R$ ${(item.preco * item.qtd).toFixed(2).replace('.', ',')}</span>
+        </div>
+      `).join('');
+
+      alternarViaCupom('CLIENTE');
+      document.getElementById('modal-cupom').classList.remove('hidden');
+    }
+
+    function alternarViaCupom(via) {
+      viaCupomAtual = via;
+      const btnCliente = document.getElementById('btn-via-cliente');
+      const btnEntregador = document.getElementById('btn-via-entregador');
+      const blocoEntregador = document.getElementById('bloco-via-entregador');
+      const txtBtnWhats = document.getElementById('txt-btn-whats-cupom');
+
+      if (via === 'CLIENTE') {
+        btnCliente.className = 'px-4 py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow';
+        btnEntregador.className = 'px-4 py-2 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition';
+        blocoEntregador.classList.add('hidden');
+        txtBtnWhats.textContent = 'WhatsApp do Cliente';
+      } else {
+        btnEntregador.className = 'px-4 py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow';
+        btnCliente.className = 'px-4 py-2 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition';
+        blocoEntregador.classList.remove('hidden');
+        txtBtnWhats.textContent = 'WhatsApp do Entregador';
+      }
+    }
+
+    // Compartilhamento Inteligente no WhatsApp: Cliente vs Entregador
+    function enviarWhatsAppViaAtiva() {
+      if (viaCupomAtual === 'CLIENTE') {
+        const foneCliente = document.getElementById('cli-fone').value.replace(/\D/g, '') || '5561995926936';
+        const cliente = document.getElementById('cli-nome').value;
+        const total = document.getElementById('cupom-valor-pago').textContent;
+        const msg = encodeURIComponent(`*SMART GW - COMPROVANTE*\nCliente: ${cliente}\nTotal: ${total}\nAgradecemos a preferência!`);
+        window.open(`https://wa.me/${foneCliente}?text=${msg}`, '_blank');
+      } else {
+        const foneEntregador = (entregadorDespachadoAtual && entregadorDespachadoAtual.fone) ? entregadorDespachadoAtual.fone : '5561983334444';
+        const cliente = document.getElementById('cli-nome').value;
+        const end = document.getElementById('cli-end').value;
+        const total = document.getElementById('cupom-valor-pago').textContent;
+        const msg = encodeURIComponent(`*ORDEM DE ENTREGA*\nEntregador: ${entregadorDespachadoAtual ? entregadorDespachadoAtual.nomeGuerra : 'Motoboy'}\nCliente: ${cliente}\nEndereço: ${end}\nValor a Cobrar: ${total}\nFavor confirmar entrega.`);
+        window.open(`https://wa.me/${foneEntregador}?text=${msg}`, '_blank');
+      }
+    }
+
+    // Relatório de Faturamento com Filtros Dinâmicos
+    function abrirRelatorioFaturamento() {
+      document.getElementById('modal-faturamento').classList.remove('hidden');
+      aplicarFiltrosFaturamento();
+    }
+
+    function aplicarFiltrosFaturamento() {
+      const periodo = document.getElementById('filtro-faturamento-periodo').value;
+      const pagto = document.getElementById('filtro-faturamento-pagamento').value;
+
+      let baseTotal = 2450.00;
+      let dinheiro = 450.00;
+      let pix = 980.00;
+      let debito = 420.00;
+      let credito = 488.00;
+
+      if (periodo === 'MES') { baseTotal *= 22; dinheiro *= 22; pix *= 22; debito *= 22; credito *= 22; }
+      else if (periodo === 'ANO') { baseTotal *= 260; dinheiro *= 260; pix *= 260; debito *= 260; credito *= 260; }
+
+      if (pagto === 'DINHEIRO') baseTotal = dinheiro;
+      else if (pagto === 'PIX') baseTotal = pix;
+      else if (pagto === 'DEBITO') baseTotal = debito;
+      else if (pagto === 'CREDITO') baseTotal = credito;
+
+      document.getElementById('lbl-faturamento-filtrado-total').textContent = `R$ ${baseTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-dinheiro').textContent = `R$ ${dinheiro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-pix').textContent = `R$ ${pix.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-debito').textContent = `R$ ${debito.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-credito').textContent = `R$ ${credito.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    }
+
+    // Helpers PDV
+    function setDestino(tipo) {
+      destinoAtual = tipo;
+      const btnBalcao = document.getElementById('btn-destino-balcao');
+      const btnEntrega = document.getElementById('btn-destino-entrega');
+
+      if (tipo === 'BALCAO') {
+        btnBalcao.className = 'px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition bg-blue-600 text-white shadow flex items-center gap-1.5';
+        btnEntrega.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5';
+      } else {
+        btnEntrega.className = 'px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition bg-blue-600 text-white shadow flex items-center gap-1.5';
+        btnBalcao.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5';
+      }
+      recalcularTotais();
+    }
+
+    function renderizarBotoesPagamentoPDV() {
+      const container = document.getElementById('grid-formas-pagamento-pdv');
+      container.innerHTML = formasPagamento.map(f => `
+        <button onclick="selecionarPagamento('${f.id}')" class="p-2 rounded-xl border ${f.id === formaPagamentoAtual ? 'border-blue-600 bg-blue-600 text-white shadow' : 'border-slate-800 bg-[#0b1322] text-slate-300'} flex flex-col items-center justify-center transition active:scale-95">
+          <i class="${f.icone} text-xs mb-0.5"></i>
+          <span class="text-[10px] font-bold">${f.nome}</span>
+        </button>
+      `).join('');
+    }
+
+    function selecionarPagamento(forma) {
+      formaPagamentoAtual = forma;
+      renderizarBotoesPagamentoPDV();
+      recalcularTotais();
+    }
+
+    function adicionarItem(idProd) {
+      const p = produtos.find(item => item.id === idProd);
+      let precoVenda = (destinoAtual === 'ENTREGA') ? p.precoEntrega : p.precoBalcao;
+      const existente = carrinho.find(i => i.id === p.id);
+      if (existente) existente.qtd += 1;
+      else carrinho.push({ ...p, preco: precoVenda, qtd: 1 });
+      renderizarCarrinho();
+    }
+
+    function alterarQtd(idProd, delta) {
+      const item = carrinho.find(i => i.id === idProd);
+      if (!item) return;
+      item.qtd += delta;
+      if (item.qtd <= 0) carrinho = carrinho.filter(i => i.id !== idProd);
+      renderizarCarrinho();
+    }
+
+    function limparPedido() { carrinho = []; renderizarCarrinho(); }
+
+    function renderizarCarrinho() {
+      const container = document.getElementById('container-itens-carrinho');
+      if (carrinho.length === 0) {
+        container.innerHTML = `<div id="carrinho-vazio" class="h-32 flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-basket-shopping text-3xl mb-1.5 opacity-30"></i><span class="text-xs font-bold text-slate-400">Nenhum produto adicionado.</span></div>`;
+        recalcularTotais();
+        return;
+      }
+      container.innerHTML = carrinho.map(item => `
+        <div class="bg-[#0b1322] border border-slate-800/80 rounded-xl p-2.5 flex items-center justify-between">
+          <div><strong class="text-xs text-white block">${item.nome}</strong><span class="text-[10px] font-mono text-slate-400">R$ ${item.preco.toFixed(2)} un</span></div>
+          <div class="flex items-center gap-1">
+            <button onclick="alterarQtd('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-800 text-white font-bold text-xs flex items-center justify-center">-</button>
+            <span class="text-xs font-mono font-bold w-4 text-center">${item.qtd}</span>
+            <button onclick="alterarQtd('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-800 text-white font-bold text-xs flex items-center justify-center">+</button>
+          </div>
+        </div>
+      `).join('');
+      recalcularTotais();
+    }
+
+    function recalcularTotais() {
+      const subtotal = carrinho.reduce((acc, i) => acc + (i.preco * i.qtd), 0);
+      document.getElementById('lbl-subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('lbl-total-cobrar').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    }
+
+    function fecharModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function fecharCupom() { document.getElementById('modal-cupom').classList.add('hidden'); limparPedido(); }
+    function baixarPDFCupom() { window.print(); }
+    function abrirModalCliente() { document.getElementById('modal-cliente').classList.remove('hidden'); }
+    function salvarCliente() { fecharModal('modal-cliente'); alert('Cliente salvo!'); }
+    function abrirModalDespesa() { alert('Despesas'); }
+    function abrirRelatorioPedidos() { document.getElementById('modal-pedidos').classList.remove('hidden'); }
+    function abrirModalEntregas() { document.getElementById('modal-entregas').classList.remove('hidden'); }
+    function abrirModalSangriaRapida() { document.getElementById('modal-sangria-rapida').classList.remove('hidden'); }
+    function confirmarSangriaRapida() { fecharModal('modal-sangria-rapida'); alert('Sangria registrada!'); }
+    function gerenciarStatusCaixa() { document.getElementById('modal-fechar-caixa').classList.remove('hidden'); }
+    function abrirModalEmpresa() { alert('Configuração dos Dados da Empresa'); }
+    function abrirModalMeuPerfil() { alert('Perfil do Operador'); }
+
+    // Inicialização
+    renderizarBotoesPagamentoPDV();
+    renderizarCarrinho();
+  </script>
+</body>
+</html>
