@@ -1,881 +1,1323 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart GW - Gestão Comercial de Água e Gás</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Smart GW - Gestão Integrada de Gás, Água e Gelo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Escala Desktop Nativa a 110% */
+    html {
+      font-size: 17.6px;
+      zoom: 1.1;
+    }
+
+    /* Responsividade Mobile Automática */
+    @media (max-width: 768px) {
+      html {
+        font-size: 14px !important;
+        zoom: 1 !important;
+      }
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    @media print {
+      body * { visibility: hidden !important; }
+      #printable-receipt-card, #printable-receipt-card * { visibility: visible !important; }
+      #printable-receipt-card { 
+        position: absolute; 
+        left: 0; 
+        top: 0; 
+        width: 100% !important; 
+        margin: 0 !important; 
+        padding: 0 !important;
+        border: none !important;
+      }
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 9999px; }
+  </style>
 </head>
-<body class="bg-[#0b1329] text-slate-100 min-h-screen antialiased flex flex-col justify-between select-none">
+<body class="bg-[#0b1322] text-slate-100 flex flex-col min-h-screen overflow-x-hidden selection:bg-blue-600 selection:text-white">
 
-    <!-- ========================================== -->
-    <!-- TELA DE LOGIN UNIFICADA                    -->
-    <!-- ========================================== -->
-    <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#070d1e]/95 backdrop-blur-md px-4">
-        <div class="w-full max-w-md bg-[#131f37] border border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 font-black text-2xl shadow-lg shadow-orange-500/20 mb-3">
-                    GW
-                </div>
-                <h2 class="text-2xl font-black tracking-wide text-white">Smart GW</h2>
-                <p class="text-xs text-slate-400 mt-1">Gestão Comercial para Revendas de Água, Gás e Gelo</p>
-            </div>
-
-            <div id="loginError" class="hidden mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 flex items-center gap-2">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span>Identificador ou senha inválidos.</span>
-            </div>
-
-            <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-                        Acesso à Revenda (CNPJ, CPF ou E-mail)
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                            <i class="fa-solid fa-id-card"></i>
-                        </span>
-                        <input type="text" id="loginId" required placeholder="Digite seu login, CPF ou CNPJ"
-                            class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all font-sans">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-                        Senha de Acesso
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
-                        <input type="password" id="loginPass" required placeholder="Digite sua senha"
-                            class="w-full pl-10 pr-4 py-3 bg-[#0d1527] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all">
-                    </div>
-                </div>
-
-                <div class="pt-2">
-                    <button type="submit"
-                        class="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 font-bold text-slate-950 text-sm rounded-xl shadow-lg shadow-orange-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                        <span>Entrar no Sistema</span>
-                    </button>
-                </div>
-            </form>
-
-            <div class="mt-6 pt-4 border-t border-slate-800 text-center">
-                <span class="text-[11px] text-slate-500">Smart GW Enterprise Cloud • v2.6</span>
-            </div>
+  <!-- CABEÇALHO GLOBAL FIXO -->
+  <header class="sticky top-0 bg-[#0f172a] border-b border-slate-800/80 px-4 md:px-6 py-2.5 flex items-center justify-between shadow-md shrink-0 z-30">
+    
+    <!-- Logo e Nome da Empresa -->
+    <div onclick="abrirModalEmpresa()" class="flex items-center gap-3 cursor-pointer hover:opacity-85 transition group" title="Configurar dados da empresa">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-xl shadow-lg shrink-0 overflow-hidden group-hover:scale-105 transition" id="header-logo-box">
+        <img id="header-logo-img" src="" class="w-full h-full object-cover hidden">
+        <span id="header-logo-text">GW</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-1.5">
+          <h1 class="font-black text-sm md:text-base tracking-tight text-white group-hover:text-blue-400 transition leading-tight" id="header-empresa-nome">Smart GW</h1>
+          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 group-hover:text-blue-400 transition"></i>
         </div>
+        <p class="text-[10px] md:text-[11px] text-slate-400 font-mono" id="header-empresa-cnpj">CNPJ: 12.345.678/0001-90</p>
+      </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- BARRA FLUTUANTE DE VISÃO DO CLIENTE        -->
-    <!-- ========================================== -->
-    <div id="modoEspelhoBarra" class="hidden bg-gradient-to-r from-amber-600 to-orange-600 text-slate-950 font-bold text-xs py-1.5 px-6 flex items-center justify-between shadow-md sticky top-0 z-40">
-        <div class="flex items-center gap-2">
-            <i class="fa-solid fa-eye"></i>
-            <span>VISUALIZANDO COMO CLIENTE: <span id="espelhoNomeEmpresa" class="underline"></span></span>
+    <!-- Navegação Superior -->
+    <nav class="hidden xl:flex items-center gap-1.5 bg-[#131d31] border border-slate-800/90 p-1.5 rounded-2xl">
+      <button onclick="setTab('dashboard')" id="btn-tab-dashboard" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-chart-line text-sm text-blue-400"></i> Início
+      </button>
+      <button onclick="setTab('pdv')" id="btn-tab-pdv" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition bg-blue-600 text-white shadow flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-cash-register text-sm"></i> Caixa PDV
+      </button>
+      <button onclick="setTab('whatsapp')" id="btn-tab-whatsapp" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i> WhatsApp IA
+      </button>
+      <button onclick="setTab('clientes')" id="btn-tab-clientes" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-users text-sm text-emerald-400"></i> Clientes (CRM)
+      </button>
+      <button onclick="setTab('vasilhames')" id="btn-tab-vasilhames" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-boxes-stacked text-sm text-orange-400"></i> Estoque
+      </button>
+      <button onclick="setTab('configuracoes')" id="btn-tab-configuracoes" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-gear text-sm text-amber-400"></i> Configurações
+      </button>
+    </nav>
+
+    <!-- Operador Atual -->
+    <div onclick="abrirModalMeuPerfil()" class="text-right border-l border-slate-800 pl-3 md:pl-4 cursor-pointer hover:opacity-80 transition group flex items-center gap-2.5 shrink-0" title="Meu Perfil">
+      <div class="hidden sm:block">
+        <span class="text-[10px] font-black uppercase text-slate-400 block tracking-wider group-hover:text-blue-400 transition" id="header-cargo-label">Proprietário</span>
+        <span class="text-xs font-black text-emerald-400 font-mono" id="header-operador-nome">Wellington Gontijo</span>
+      </div>
+      <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xs font-black overflow-hidden" id="header-avatar-box">
+        <img id="header-avatar-img" src="" class="w-full h-full object-cover hidden">
+        <i id="header-avatar-icon" class="fa-solid fa-user"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVEGAÇÃO MOBILE -->
+  <div class="xl:hidden bg-[#0f172a] border-b border-slate-800 p-2 flex shrink-0 overflow-x-auto gap-2 custom-scroll">
+    <button onclick="setTab('dashboard')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0"><i class="fa-solid fa-chart-line text-blue-400"></i> Início</button>
+    <button onclick="setTab('pdv')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 shadow flex items-center gap-1.5 shrink-0"><i class="fa-solid fa-cash-register"></i> Caixa</button>
+    <button onclick="setTab('whatsapp')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0"><i class="fa-brands fa-whatsapp text-emerald-400"></i> WhatsApp</button>
+    <button onclick="setTab('clientes')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0"><i class="fa-solid fa-users text-emerald-400"></i> Clientes</button>
+    <button onclick="setTab('vasilhames')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0"><i class="fa-solid fa-boxes-stacked text-orange-400"></i> Estoque</button>
+    <button onclick="setTab('configuracoes')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0"><i class="fa-solid fa-gear text-amber-400"></i> Config</button>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 p-3.5 md:p-6 custom-scroll">
+
+    <!-- ============================================================ -->
+    <!-- 1. INÍCIO (DASHBOARD COM OS 6 CARDS PADRONIZADOS E IGUAIS)    -->
+    <!-- ============================================================ -->
+    <div id="view-dashboard" class="view-panel hidden space-y-6 max-w-7xl mx-auto">
+      
+      <!-- Topo do Painel -->
+      <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-5 md:p-7 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-bold text-blue-400 mb-1">
+            <i class="fa-regular fa-calendar-days"></i>
+            <span id="dashboard-datetime">Sábado, 24 de outubro de 2026</span>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-black text-white tracking-tight">Painel Principal</h2>
+          <p class="text-slate-400 text-xs md:text-sm mt-0.5">Visão consolidada da operação, finanças e entregas do dia.</p>
         </div>
-        <button onclick="voltarParaMinhaRevenda()" class="bg-slate-950 text-white hover:bg-slate-900 px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all">
-            <i class="fa-solid fa-arrow-left"></i> Minha Revenda
+        <button onclick="setTab('pdv')" class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition hover:scale-105">
+          <i class="fa-solid fa-plus-circle text-base"></i> Abrir Caixa PDV
         </button>
+      </div>
+
+      <!-- Grade dos 6 Cards com Proporção e Estilo 100% Idênticos -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        
+        <!-- Card 1: Faturamento Hoje (Limpo, abre modal ao clicar) -->
+        <div onclick="abrirRelatorioFaturamento()" class="bg-[#131d31] border border-slate-800 hover:border-emerald-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Faturamento Hoje</span>
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-chart-pie"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-emerald-400 font-mono" id="dash-faturamento-total">R$ 2.450,00</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Clique para abrir o relatório com filtros</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Total de Vendas -->
+        <div onclick="abrirRelatorioPedidos()" class="bg-[#131d31] border border-slate-800 hover:border-blue-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Total de Vendas</span>
+            <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-receipt"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-white font-mono" id="dash-vendas-qtd">21 Pedidos</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Clique para ver os pedidos por atendente</p>
+          </div>
+        </div>
+
+        <!-- Card 3: Entregas -->
+        <div onclick="abrirModalEntregas()" class="bg-[#131d31] border border-slate-800 hover:border-cyan-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Entregas</span>
+            <div class="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-motorcycle"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-cyan-400 font-mono" id="dash-qtd-entregas">3 Entregas</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Clique para ver rotas e motoboys</p>
+          </div>
+        </div>
+
+        <!-- Card 4: Cadastrar Despesa -->
+        <div onclick="abrirModalDespesa()" class="bg-[#131d31] border border-slate-800 hover:border-rose-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Despesas & Sangrias</span>
+            <div class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-xl font-black text-white">Cadastrar Despesa</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Lançar saída ou retirada de caixa</p>
+          </div>
+        </div>
+
+        <!-- Card 5: Ver o Estoque -->
+        <div onclick="setTab('vasilhames')" class="bg-[#131d31] border border-slate-800 hover:border-orange-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Patrimônio de Cascos</span>
+            <div class="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-xl font-black text-white">Ver o Estoque</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Consultar gavetas e saldo de pátio</p>
+          </div>
+        </div>
+
+        <!-- Card 6: Cadastrar Clientes -->
+        <div onclick="abrirModalCliente()" class="bg-[#131d31] border border-slate-800 hover:border-emerald-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Gestão de Carteira</span>
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-user-plus"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-xl font-black text-white">Cadastrar Clientes</div>
+            <p class="text-[11px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition">Novo cliente com busca rápida por CEP</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 2. CAIXA PDV                                                 -->
+    <!-- ============================================================ -->
+    <div id="view-pdv" class="view-panel grid grid-cols-1 lg:grid-cols-12 gap-5 items-start max-w-[1440px] mx-auto">
+      
+      <!-- Coluna da Esquerda (Produtos e Identificação do Cliente) -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        
+        <!-- Topo: Tipo de Saída + Botões de Sangria e Caixa -->
+        <div class="bg-[#131d31] border border-slate-800/80 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black text-slate-400 uppercase tracking-wider" id="lbl-tipo-saida-pdv">SAÍDA:</span>
+            <div class="flex gap-1.5">
+              <button onclick="setDestino('BALCAO')" id="btn-destino-balcao" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition bg-blue-600 text-white shadow flex items-center gap-1.5">
+                <i class="fa-solid fa-store"></i> <span id="txt-btn-balcao">Balcão (Portaria)</span>
+              </button>
+              <button onclick="setDestino('ENTREGA')" id="btn-destino-entrega" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                <i class="fa-solid fa-motorcycle"></i> <span id="txt-btn-entrega">Tele-Entrega</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="abrirModalSangriaRapida()" class="bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/50 px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5">
+              <i class="fa-solid fa-hand-holding-dollar text-xs"></i> Sangria
+            </button>
+            <button onclick="gerenciarStatusCaixa()" id="btn-status-caixa-pdv" class="bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-800/50 px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5">
+              <i class="fa-solid fa-lock text-xs"></i> Fechar Caixa
+            </button>
+          </div>
+        </div>
+
+        <!-- Grade dos 3 Cards de Produtos Clássicos -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="grade-cards-pdv">
+          <!-- Card 1: Botijão GLP 13kg -->
+          <div onclick="adicionarItem('P13')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-11 h-11 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-fire"></i>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg">Retornável</span>
+              </div>
+              <h3 class="font-extrabold text-white text-base leading-snug">Botijão GLP 13kg</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Carga Tradicional P13</p>
+            </div>
+            <div class="mt-6 pt-3 border-t border-slate-800/60 flex items-baseline justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 block" id="tag-preco-p13">Preço Balcão</span>
+                <span class="text-2xl font-black text-white font-mono" id="val-preco-p13">R$ 115,00</span>
+              </div>
+              <span class="text-xs text-slate-500 font-mono">Custo: R$ 75,00</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Galão Água 20L -->
+          <div onclick="adicionarItem('G20L')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-11 h-11 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-bottle-water"></i>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg">Retornável</span>
+              </div>
+              <h3 class="font-extrabold text-white text-base leading-snug">Galão Água 20L</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Mineral de Fonte Natural</p>
+            </div>
+            <div class="mt-6 pt-3 border-t border-slate-800/60 flex items-baseline justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 block" id="tag-preco-agua">Preço Balcão</span>
+                <span class="text-2xl font-black text-white font-mono" id="val-preco-agua">R$ 14,00</span>
+              </div>
+              <span class="text-xs text-slate-500 font-mono">Custo: R$ 6,50</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Gelo em Cubos 5kg -->
+          <div onclick="adicionarItem('GELO5')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-snowflake"></i>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-lg">Descartável</span>
+              </div>
+              <h3 class="font-extrabold text-white text-base leading-snug">Gelo em Cubos 5kg</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Filtrado & Cristalino</p>
+            </div>
+            <div class="mt-6 pt-3 border-t border-slate-800/60 flex items-baseline justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 block" id="tag-preco-gelo">Preço Balcão</span>
+                <span class="text-2xl font-black text-white font-mono" id="val-preco-gelo">R$ 12,00</span>
+              </div>
+              <span class="text-xs text-slate-500 font-mono">Custo: R$ 5,00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Identificação do Cliente -->
+        <div class="bg-[#131d31] border border-slate-800/80 rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-300">
+              <i class="fa-solid fa-user-tag text-blue-400"></i> Identificação do Cliente
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-slate-500 hidden sm:inline">Opcional para venda à vista</span>
+              <button onclick="abrirModalCliente()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1 shadow">
+                <i class="fa-solid fa-user-plus text-[10px]"></i> + Cadastrar / Editar Cliente
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
+            <div class="md:col-span-4">
+              <label class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Nome / Razão Social</label>
+              <input type="text" id="cli-nome" value="LORRANE DA COSTA TAVARES" class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-blue-500 font-bold">
+            </div>
+            <div class="md:col-span-3">
+              <label class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Telefone / WhatsApp</label>
+              <input type="text" id="cli-fone" value="(61) 99592-6936" class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-blue-500">
+            </div>
+            <div class="md:col-span-5">
+              <label class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Endereço de Entrega</label>
+              <input type="text" id="cli-end" value="Quadra QR 204 Conjunto 1, 3 — casa" class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Margem Operacional -->
+        <div class="bg-[#131d31] border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-slate-300 block">Margem Operacional Estimada Desta Venda</span>
+              <span class="text-xs text-slate-400" id="box-custos-cmv">
+                Taxa Retida: <strong class="text-amber-400 font-mono" id="lbl-taxa-retida">R$ 0,00</strong> • CMV: <strong class="text-slate-300 font-mono" id="lbl-cmv-retido">R$ 75,00</strong>
+              </span>
+            </div>
+          </div>
+          <div class="text-right" id="box-lucro-real-wrapper">
+            <span class="text-[10px] uppercase font-black text-slate-400 block tracking-wider">Lucro Líquido Real</span>
+            <span class="text-2xl font-black text-emerald-400 font-mono" id="lbl-lucro-real">R$ 40,00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna da Direita (Itens do Pedido & Fechamento) -->
+      <div class="lg:col-span-5 bg-[#131d31] border border-slate-800/80 rounded-2xl shadow-xl flex flex-col justify-between overflow-hidden">
+        <div>
+          <div class="p-4 border-b border-slate-800 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2 text-sm font-black text-white">
+              <i class="fa-solid fa-cart-shopping text-blue-400"></i> Itens do Pedido
+            </div>
+            <button onclick="limparPedido()" class="text-xs text-slate-400 hover:text-rose-400 font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-trash-can"></i> Limpar
+            </button>
+          </div>
+
+          <div class="p-4 max-h-[190px] overflow-y-auto space-y-3 custom-scroll" id="container-itens-carrinho">
+            <div id="carrinho-vazio" class="h-36 flex flex-col items-center justify-center text-slate-500">
+              <i class="fa-solid fa-basket-shopping text-3xl mb-1.5 opacity-30"></i>
+              <span class="text-xs font-bold text-slate-400">Nenhum produto adicionado.</span>
+              <span class="text-[11px] text-slate-500 mt-0.5">Clique nos produtos ao lado para vender</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 space-y-3.5 bg-[#101827] shrink-0">
+          <div>
+            <span class="block text-[10px] font-black uppercase text-slate-400 mb-1.5 tracking-wider">FORMA DE PAGAMENTO:</span>
+            <div class="grid grid-cols-3 gap-2" id="grid-formas-pagamento-pdv"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 items-center pt-0.5">
+            <div>
+              <label class="block text-[10px] text-slate-400 font-bold mb-1">VALOR RECEBIDO (TROCO):</label>
+              <input type="number" id="input-recebido" value="0.00" step="0.50" oninput="calcularTroco()" class="w-full bg-[#0b1322] border border-slate-800 rounded-xl px-3 py-1.5 text-right font-mono font-bold text-sm text-white outline-none focus:border-blue-500">
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-400 font-bold block mb-1">TROCO A DEVOLVER:</span>
+              <span class="text-base font-black text-emerald-400 font-mono" id="lbl-troco">R$ 0,00</span>
+            </div>
+          </div>
+
+          <div class="space-y-1 pt-1.5 border-t border-slate-800/80">
+            <div class="flex justify-between text-xs text-slate-400">
+              <span>Subtotal Produtos:</span>
+              <span class="font-mono text-slate-300" id="lbl-subtotal">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between items-center pt-0.5">
+              <span class="text-sm font-black text-white tracking-wide uppercase">TOTAL A COBRAR:</span>
+              <span class="text-3xl font-black text-white font-mono tracking-tight" id="lbl-total-cobrar">R$ 0,00</span>
+            </div>
+          </div>
+
+          <!-- Botão Concluir Venda -->
+          <button onclick="cliqueConcluirVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm py-3.5 rounded-xl uppercase tracking-wider transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-circle-check text-base"></i> CONCLUIR VENDA & EMITIR CUPOM
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 3. MÓDULO WHATSAPP COM CADASTRO & VENDA IMEDIATA             -->
+    <!-- ============================================================ -->
+    <div id="view-whatsapp" class="view-panel hidden space-y-4 max-w-7xl mx-auto h-[calc(100vh-140px)] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-brands fa-whatsapp text-emerald-400 text-3xl"></i> Central WhatsApp & Triagem Inteligente
+          </h2>
+          <p class="text-slate-400 text-xs">Interaja com clientes, cadastre contatos em 1 clique e lance pedidos diretos no PDV.</p>
+        </div>
+        <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-black">
+          ● Triagem IA Conectada
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 overflow-hidden">
+        
+        <!-- Lista de Conversas -->
+        <div class="md:col-span-4 bg-[#131d31] border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
+          <div class="p-3 border-b border-slate-800">
+            <input type="text" placeholder="Buscar conversa..." class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
+          </div>
+          <div class="overflow-y-auto custom-scroll flex-1 p-2 space-y-2">
+            <div onclick="carregarChatWhats('Lorrane Tavares', '(61) 99592-6936', 'Quadra QR 204 Conjunto 1, 3 — casa')" class="p-3 bg-blue-600/20 border border-blue-500/40 rounded-xl cursor-pointer">
+              <div class="flex justify-between items-center">
+                <strong class="text-white text-xs">Lorrane Tavares</strong>
+                <span class="text-[10px] text-slate-400 font-mono">10:14</span>
+              </div>
+              <p class="text-slate-300 text-[11px] truncate mt-0.5">Bom dia! Tem como mandar um gás aqui na QR 204?</p>
+              <span class="inline-block bg-emerald-500/10 text-emerald-400 text-[9px] px-2 py-0.5 rounded font-black mt-1">Interessada em P13</span>
+            </div>
+
+            <div onclick="carregarChatWhats('Novo Cliente (Samambaia)', '(61) 98444-1122', '')" class="p-3 bg-[#0b1322] hover:bg-slate-800/60 rounded-xl cursor-pointer border border-slate-800">
+              <div class="flex justify-between items-center">
+                <strong class="text-white text-xs">Novo Contato (Não Cadastrado)</strong>
+                <span class="text-[10px] text-slate-400 font-mono">09:50</span>
+              </div>
+              <p class="text-slate-400 text-[11px] truncate mt-0.5">Olá, qual o valor do galão de água de 20L?</p>
+              <span class="inline-block bg-amber-500/10 text-amber-400 text-[9px] px-2 py-0.5 rounded font-black mt-1">Não Cadastrado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Central e Ação de Cadastrar & Vender Direto -->
+        <div class="md:col-span-8 bg-[#131d31] border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
+          <div class="p-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 bg-[#0f172a]">
+            <div>
+              <strong class="text-white text-sm block" id="whats-chat-nome">Lorrane Tavares</strong>
+              <span class="text-slate-400 text-xs font-mono" id="whats-chat-sub">(61) 99592-6936 • Quadra QR 204 Conjunto 1, 3</span>
+            </div>
+            <!-- Botão Solicitado: Cadastrar Cliente e Abrir PDV Direto -->
+            <button onclick="cadastrarClienteEVenderViaWhats()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30">
+              <i class="fa-solid fa-bolt"></i> Cadastrar & Vender no PDV
+            </button>
+          </div>
+
+          <div class="flex-1 p-4 overflow-y-auto custom-scroll space-y-3 bg-[#0b1322]" id="whats-mensagens-box">
+            <div class="bg-slate-800/80 p-3 rounded-2xl max-w-md text-xs text-slate-200">
+              Olá! Gostaria de pedir um botijão de gás P13 para entregar aqui na Quadra QR 204 Conjunto 1, 3.
+            </div>
+            <div class="bg-emerald-950/60 border border-emerald-500/30 p-3 rounded-2xl max-w-md ml-auto text-xs text-emerald-200 space-y-1">
+              <div class="text-[10px] font-black uppercase text-emerald-400"><i class="fa-solid fa-robot mr-1"></i> Resposta Automática da IA:</div>
+              <p>Bom dia! O Botijão GLP 13kg sai por R$ 115,00 com entrega imediata. Vamos confirmar o pedido?</p>
+            </div>
+          </div>
+
+          <div class="p-3 border-t border-slate-800 bg-[#0f172a] flex gap-2">
+            <input type="text" placeholder="Digite uma mensagem..." class="flex-1 bg-[#0b1322] border border-slate-700 rounded-xl px-4 py-2 text-xs text-white outline-none">
+            <button class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-xs font-black transition">Enviar</button>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- CABEÇALHO PRINCIPAL COM MENUS NO TOPO      -->
+    <!-- 4. CLIENTES (CRM)                          -->
     <!-- ========================================== -->
-    <header class="bg-[#101b33] border-b border-slate-800/80 px-6 py-2.5 sticky top-0 z-30 flex items-center justify-between shadow-lg">
-        
-        <!-- Logo e Dados da Revenda -->
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-slate-950 font-black text-base shadow-md shadow-orange-500/20">
-                GW
-            </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <span id="nomeRevendaHeader" class="font-extrabold text-base tracking-wide text-white">Smart GW (Matriz Oficial)</span>
-                    <span id="badgeOwner" class="px-2 py-0.5 text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 rounded-full font-bold uppercase">Master</span>
-                </div>
-                <p id="headerCnpjDisplay" class="text-[11px] text-slate-400 font-mono tracking-tight">CNPJ: 12.345.678/0001-90</p>
-            </div>
+    <div id="view-clientes" class="view-panel hidden space-y-6 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-black text-white tracking-tight">Gestão de Clientes (CRM)</h2>
+          <p class="text-slate-400 text-xs">Cadastro completo, limite para fiado comercial e endereços de entrega.</p>
+        </div>
+        <button onclick="abrirModalCliente()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-user-plus"></i> + Novo Cliente
+        </button>
+      </div>
+
+      <div class="bg-[#131d31] border border-slate-800 rounded-2xl overflow-hidden shadow">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-[#0f172a] border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider">
+            <tr>
+              <th class="p-4">Cliente / Tipo</th>
+              <th class="p-4">Documento (CPF/CNPJ)</th>
+              <th class="p-4">Telefone / WhatsApp</th>
+              <th class="p-4">Endereço Completo</th>
+              <th class="p-4">Limite de Crédito</th>
+              <th class="p-4 text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800" id="tabela-clientes-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 5. ESTOQUE                                 -->
+    <!-- ========================================== -->
+    <div id="view-vasilhames" class="view-panel hidden space-y-6 max-w-7xl mx-auto">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#131d31] border border-slate-800 p-5 rounded-2xl shadow">
+        <div>
+          <h2 class="text-xl font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked text-orange-400"></i> Controle Geral de Estoque & Pátio
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Gerencie compras de cargas e acertos de saldo inicial com justificativa.</p>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="alert('Compra de carga')" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-cart-flatbed"></i> + Comprar Carga
+          </button>
+          <button onclick="alert('Ajuste de estoque')" class="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-scale-balanced"></i> Ajustar Estoque
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-[#131d31] border border-slate-800 p-6 rounded-2xl space-y-4 shadow">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-fire text-orange-500"></i> Vasilhames GLP P13 – Total 127 un
+          </h3>
+          <span class="text-xs text-slate-400">Patrimônio Ativo</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
+          <div class="bg-[#0b1322] border border-emerald-500/30 p-3 rounded-xl">
+            <span class="text-emerald-400 font-bold block">1. Cheios</span>
+            <span class="text-2xl font-black text-white mt-1 block font-mono">80</span>
+          </div>
+          <div class="bg-[#0b1322] border border-slate-800 p-3 rounded-xl">
+            <span class="text-slate-400 font-bold block">2. Vazios</span>
+            <span class="text-2xl font-black text-white mt-1 block font-mono">45</span>
+          </div>
+          <div class="bg-[#0b1322] border border-amber-500/30 p-3 rounded-xl">
+            <span class="text-amber-400 font-bold block">3. Trânsito</span>
+            <span class="text-2xl font-black text-white mt-1 block font-mono">0</span>
+          </div>
+          <div class="bg-[#0b1322] border border-rose-500/30 p-3 rounded-xl">
+            <span class="text-rose-400 font-bold block">4. Avarias</span>
+            <span class="text-2xl font-black text-white mt-1 block font-mono">2</span>
+          </div>
+          <div class="bg-[#0b1322] border border-purple-500/30 p-3 rounded-xl col-span-2 sm:col-span-1">
+            <span class="text-purple-400 font-bold block">5. Faltas</span>
+            <span class="text-2xl font-black text-white mt-1 block font-mono">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 6. CONFIGURAÇÕES                           -->
+    <!-- ========================================== -->
+    <div id="view-configuracoes" class="view-panel hidden space-y-6 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-amber-400"></i> Central Geral de Configurações
+          </h2>
+          <p class="text-slate-400 text-xs">Configure todos os parâmetros operacionais, fiscais e regras de negócio.</p>
+        </div>
+      </div>
+
+      <div class="p-6 bg-[#131d31] border border-slate-800 rounded-3xl space-y-3">
+        <h3 class="font-black text-white text-base">Configurações Operacionais Ativas</h3>
+        <p class="text-xs text-slate-400">Ambiente SEFAZ: Homologação • Modo de Frete: Embutido no Preço • Backup Automático Ativo.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: CARREGAMENTO DE ENTREGA (COM MOTOBOY DEFINIDO)        -->
+  <!-- ============================================================ -->
+  <div id="modal-criar-carregamento" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-black text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-motorcycle text-cyan-400"></i> Criar Carregamento para Entrega
+        </h3>
+        <button onclick="fecharModal('modal-criar-carregamento')" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-slate-400 font-bold mb-1">Entregador Responsável pelo Despacho</label>
+          <select id="carregamento-entregador-select" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-3 text-white font-bold outline-none focus:border-cyan-500 text-sm">
+            <!-- Populado via JS -->
+          </select>
         </div>
 
-        <!-- NAVEGAÇÃO PRINCIPAL (EM CIMA, ONDE SEMPRE DEVERIA ESTAR) -->
-        <nav class="hidden md:flex items-center gap-1 bg-[#0b1329] p-1 rounded-2xl border border-slate-800">
-            <button onclick="alternarModulo('PDV', this)" class="nav-item px-4 py-2 rounded-xl text-xs font-bold transition-all bg-sky-500 text-white shadow-md shadow-sky-500/20 flex items-center gap-2">
-                <i class="fa-solid fa-cart-shopping"></i> PDV / Vendas
-            </button>
-            <button onclick="alternarModulo('CAIXA', this)" class="nav-item px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2">
-                <i class="fa-solid fa-cash-register"></i> Caixa
-            </button>
-            <button onclick="alternarModulo('ESTOQUE', this)" class="nav-item px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2">
-                <i class="fa-solid fa-boxes-stacked"></i> Estoque & Vasilhames
-            </button>
-            <button onclick="alternarModulo('ENTREGAS', this)" class="nav-item px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2">
-                <i class="fa-solid fa-motorcycle"></i> Tele-Entrega
-            </button>
-            <button onclick="alternarModulo('CONFIG', this)" class="nav-item px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2">
-                <i class="fa-solid fa-gear"></i> Configurações
-            </button>
-        </nav>
+        <div class="bg-[#0b1322] p-3.5 rounded-2xl border border-slate-800 space-y-1.5 font-mono">
+          <div class="flex justify-between text-slate-300">
+            <span>Cliente:</span>
+            <strong class="text-white" id="carregamento-preview-cliente">LORRANE DA COSTA TAVARES</strong>
+          </div>
+          <div class="flex justify-between text-slate-300">
+            <span>Endereço:</span>
+            <span class="text-slate-400 truncate max-w-[260px]" id="carregamento-preview-endereco">Quadra QR 204 Conjunto 1, 3</span>
+          </div>
+          <div class="flex justify-between text-slate-300">
+            <span>Carga:</span>
+            <strong class="text-emerald-400" id="carregamento-preview-itens">1x Botijão GLP 13kg</strong>
+          </div>
+          <div class="flex justify-between text-slate-300 border-t border-slate-800 pt-1">
+            <span>Total a Cobrar:</span>
+            <strong class="text-white text-sm" id="carregamento-preview-total">R$ 115,00</strong>
+          </div>
+        </div>
+      </div>
 
-        <!-- Lado Direito: Dono, Revendas e Sair -->
+      <div class="flex gap-2 pt-2 border-t border-slate-800">
+        <button onclick="fecharModal('modal-criar-carregamento')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold transition">
+          Cancelar
+        </button>
+        <button onclick="confirmarCarregamentoEDespachar()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-black transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/30">
+          <i class="fa-solid fa-paper-plane"></i> Confirmar Despacho
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: CUPOM NÃO FISCAL COM WHATSAPP DO CLIENTE E DO ENTREGADOR-->
+  <!-- ============================================================ -->
+  <div id="modal-cupom" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-[640px] w-full p-4 md:p-6 shadow-2xl flex flex-col max-h-[94vh] text-slate-900 border border-slate-200">
+      
+      <!-- Topo com Alternância das Vias -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3 shrink-0">
+        <div>
+          <h2 class="text-lg md:text-xl font-bold tracking-tight text-slate-900">Cupom não fiscal</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">Comprovante da venda.<br>Não é documento fiscal: se a nota for emitida depois, ela é que vale.</p>
+        </div>
+        
         <div class="flex items-center gap-3">
-            <div class="hidden xl:flex flex-col text-right">
-                <span class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">PROPRIETÁRIO</span>
-                <span id="headerProprietario" class="text-xs font-bold text-slate-100">Wellington Gontijo</span>
-            </div>
-
-            <!-- Botão de Revendas & Testes -->
-            <button id="btnCadastrarRevendaTop" onclick="abrirModuloRevendas()"
-                class="px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5">
-                <i class="fa-solid fa-building-circle-check"></i>
-                <span>Revendas & Testes</span>
-            </button>
-
-            <button onclick="handleLogout()" class="w-9 h-9 rounded-xl bg-[#16233f] border border-slate-700/60 hover:border-rose-500 text-slate-300 hover:text-rose-400 flex items-center justify-center transition-all" title="Sair do sistema">
-                <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
-            </button>
+          <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs" id="box-seletor-vias-cupom">
+            <button onclick="alternarViaCupom('CLIENTE')" id="btn-via-cliente" class="px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow">Via do cliente</button>
+            <button onclick="alternarViaCupom('ENTREGADOR')" id="btn-via-entregador" class="px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition">Via do entregador</button>
+          </div>
+          <button onclick="fecharCupom()" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-1.5">✕</button>
         </div>
-    </header>
+      </div>
 
-    <!-- ========================================== -->
-    <!-- ÁREA ÚTIL TOTAL (OCUPA TODA A TELA)        -->
-    <!-- ========================================== -->
-    <main class="flex-1 w-full px-6 py-4 flex flex-col justify-start">
-        
-        <!-- ====================================== -->
-        <!-- MÓDULO 1: PDV / BALCÃO / VENDAS         -->
-        <!-- ====================================== -->
-        <div id="moduloPDV" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            <!-- COLUNA ESQUERDA: PRODUTOS & CLIENTE (7 COLS) -->
-            <div class="lg:col-span-7 space-y-4">
-                
-                <!-- Barra de Operações do PDV -->
-                <div class="flex flex-wrap items-center justify-between gap-3 bg-[#101b33] p-3 rounded-2xl border border-slate-800/80 shadow-md">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">SAÍDA:</span>
-                        <button id="btnBalcao" onclick="setDestino('BALCAO')"
-                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-sky-500 text-white shadow-md shadow-sky-500/20 flex items-center gap-1.5">
-                            <i class="fa-solid fa-store text-xs"></i> Balcão (Portaria)
-                        </button>
-                        <button id="btnEntrega" onclick="setDestino('ENTREGA')"
-                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white flex items-center gap-1.5">
-                            <i class="fa-solid fa-motorcycle text-xs"></i> Tele-Entrega
-                        </button>
-                    </div>
+      <!-- Cupom Térmico (Espaçoso e Alinhado em Linha Única) -->
+      <div class="overflow-y-auto custom-scroll p-3 md:p-4 bg-white border border-slate-200 rounded-xl flex-1" id="printable-receipt-card">
+        <div class="font-mono text-xs text-slate-900 leading-normal space-y-1.5 max-w-[540px] mx-auto">
+          
+          <div class="text-center">
+            <div class="font-extrabold text-sm uppercase" id="cupom-empresa-nome">OPTIMUS PRIME PROMOCOES LTDA</div>
+            <div class="font-bold text-xs" id="cupom-empresa-fantasia">OPTIMUS PRIME PROMOCOES</div>
+            <div class="text-[11px] text-slate-600" id="cupom-empresa-cnpj-ie">CNPJ 64.439.117/0001-59 — IE 0846086900160</div>
+            <div class="text-[11px] text-slate-600" id="cupom-empresa-rua">QUADRA QR 204 CONJUNTO 1, SN, LOTE 03 PARTE A, SAMAMBAIA NORTE</div>
+            <div class="text-[11px] text-slate-600">BRASILIA — DF — 72316-081</div>
+          </div>
 
-                    <div class="flex items-center gap-2">
-                        <button onclick="registrarSangria()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 transition-all flex items-center gap-1">
-                            <i class="fa-solid fa-arrow-down-long"></i> Sangria
-                        </button>
-                        <button onclick="fecharCaixa()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 transition-all flex items-center gap-1">
-                            <i class="fa-solid fa-lock"></i> Fechar Caixa
-                        </button>
-                    </div>
-                </div>
+          <div class="border-b border-dashed border-slate-400 my-1"></div>
 
-                <!-- CARDS DE PRODUTOS GRANDES & LEGÍVEIS -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    
-                    <!-- BOTIJÃO GLP 13KG -->
-                    <div onclick="adicionarAoCarrinho('Botijão GLP 13kg', 115.00, 125.00, 75.00, 'GAS')"
-                        class="bg-[#101b33] border border-slate-800 hover:border-orange-500/60 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group shadow-md relative">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="w-11 h-11 rounded-2xl bg-orange-500/15 text-orange-400 flex items-center justify-center text-xl">
-                                <i class="fa-solid fa-fire"></i>
-                            </div>
-                            <span class="text-[10px] bg-slate-800/90 text-slate-300 px-2.5 py-0.5 rounded-full font-medium border border-slate-700/60">Retornável</span>
-                        </div>
-                        <h3 class="font-extrabold text-base text-white tracking-wide">Botijão GLP 13kg</h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Carga Tradicional P13</p>
-                        
-                        <div class="mt-5 pt-3 border-t border-slate-800/90 flex items-end justify-between">
-                            <div>
-                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Preço Balcão</span>
-                                <span class="text-xl font-black text-white">R$ 115,00</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Custo: R$</span>
-                                <span class="text-xs font-semibold text-slate-400">75,00</span>
-                            </div>
-                        </div>
-                    </div>
+          <!-- BLOCO CONDICIONAL: VIA DO ENTREGADOR -->
+          <div id="bloco-via-entregador" class="hidden space-y-0.5 text-xs py-1 border-b border-dashed border-slate-400 mb-1">
+            <div class="font-black text-center text-xs uppercase tracking-wider mb-1">VIA DO ENTREGADOR</div>
+            <div><strong>Cliente:</strong> <span id="cupom-entregador-nome" class="font-bold">LORRANE DA COSTA TAVARES</span></div>
+            <div><strong>Telefone:</strong> <span id="cupom-entregador-fone">(61) 99592-6936</span></div>
+            <div><strong>Endereço:</strong> <span id="cupom-entregador-end">Quadra QR 204 Conjunto 1, 3 — casa</span></div>
+            <div><span id="cupom-entregador-bairro">Samambaia Norte — Brasília/DF</span></div>
+            <div><strong>Entregador Despachado:</strong> <span id="cupom-entregador-despachado" class="font-bold text-emerald-700">Marcos (Moto 01)</span></div>
+          </div>
 
-                    <!-- GALÃO ÁGUA 20L -->
-                    <div onclick="adicionarAoCarrinho('Galão Água 20L', 14.00, 18.00, 6.50, 'AGUA')"
-                        class="bg-[#101b33] border border-slate-800 hover:border-cyan-500/60 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group shadow-md relative">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="w-11 h-11 rounded-2xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center text-xl">
-                                <i class="fa-solid fa-bottle-water"></i>
-                            </div>
-                            <span class="text-[10px] bg-slate-800/90 text-slate-300 px-2.5 py-0.5 rounded-full font-medium border border-slate-700/60">Retornável</span>
-                        </div>
-                        <h3 class="font-extrabold text-base text-white tracking-wide">Galão Água 20L</h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Mineral Fonte Natural</p>
-                        
-                        <div class="mt-5 pt-3 border-t border-slate-800/90 flex items-end justify-between">
-                            <div>
-                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Preço Balcão</span>
-                                <span class="text-xl font-black text-white">R$ 14,00</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Custo: R$</span>
-                                <span class="text-xs font-semibold text-slate-400">6,50</span>
-                            </div>
-                        </div>
-                    </div>
+          <div class="text-center">
+            <div class="font-black text-xs uppercase tracking-wider">CUPOM NÃO FISCAL</div>
+            <div class="text-[11px] text-slate-500">Comprovante de venda — não é documento fiscal</div>
+          </div>
 
-                    <!-- GELO EM CUBOS 5KG -->
-                    <div onclick="adicionarAoCarrinho('Gelo em Cubos 5kg', 12.00, 15.00, 5.00, 'GELO')"
-                        class="bg-[#101b33] border border-slate-800 hover:border-blue-500/60 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group shadow-md relative">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="w-11 h-11 rounded-2xl bg-blue-500/15 text-blue-400 flex items-center justify-center text-xl">
-                                <i class="fa-regular fa-snowflake"></i>
-                            </div>
-                            <span class="text-[10px] bg-slate-800/90 text-slate-300 px-2.5 py-0.5 rounded-full font-medium border border-slate-700/60">Descartável</span>
-                        </div>
-                        <h3 class="font-extrabold text-base text-white tracking-wide">Gelo em Cubos 5kg</h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Filtrado & Cristalino</p>
-                        
-                        <div class="mt-5 pt-3 border-t border-slate-800/90 flex items-end justify-between">
-                            <div>
-                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Preço Balcão</span>
-                                <span class="text-xl font-black text-white">R$ 12,00</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Custo: R$</span>
-                                <span class="text-xs font-semibold text-slate-400">5,00</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- IDENTIFICAÇÃO DO CLIENTE / CRM RÁPIDO -->
-                <div class="bg-[#101b33] border border-slate-800/80 rounded-2xl p-4 shadow-md space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-user-check text-sky-400"></i> IDENTIFICAÇÃO DO CLIENTE
-                        </span>
-                        <button onclick="cadastrarClienteNovoPrompt()" class="px-3 py-1 bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 border border-sky-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-plus text-[11px]"></i> Cadastrar Cliente
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">NOME</label>
-                            <input type="text" id="cliNome" value="LORRANE DA COSTA TA"
-                                class="w-full bg-[#0b1329] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">WHATSAPP</label>
-                            <input type="text" id="cliWhats" value="(61) 99592-6936"
-                                class="w-full bg-[#0b1329] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 font-mono">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">ENDEREÇO DE ENTREGA</label>
-                            <input type="text" id="cliEnd" value="Quadra QR 204 Conjunto 1, 3 — c"
-                                class="w-full bg-[#0b1329] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
-                        </div>
-                    </div>
-                </div>
-
+          <!-- Linhas de Itens Formatadas e Alinhadas em Linha Única -->
+          <div class="pt-1">
+            <div class="flex justify-between text-[11px] text-slate-700 font-bold pb-1 border-b border-dashed border-slate-300">
+              <span class="w-20">Cód.</span>
+              <span class="flex-1 px-2">Descrição</span>
+              <span class="w-16 text-center">Qtd Un</span>
+              <span class="w-16 text-right">Vl un</span>
+              <span class="w-16 text-right">Total</span>
             </div>
+            <div id="cupom-linhas-produtos" class="space-y-1 py-1.5 text-xs"></div>
+          </div>
 
-            <!-- COLUNA DIREITA: PEDIDO & FORMAS DE PAGAMENTO (5 COLS) -->
-            <div class="lg:col-span-5 bg-[#101b33] border border-slate-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between min-h-[580px]">
-                
-                <div>
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                        <h2 class="font-extrabold text-sm text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-cart-shopping text-sky-400"></i> Itens do Pedido
-                        </h2>
-                        <button onclick="limparCarrinho()" class="text-xs text-slate-400 hover:text-rose-400 font-semibold flex items-center gap-1 transition-all">
-                            <i class="fa-solid fa-trash-can text-[11px]"></i> Limpar
-                        </button>
-                    </div>
+          <div class="border-b border-dashed border-slate-400 my-1"></div>
 
-                    <div id="carrinhoLista" class="py-4 space-y-2 max-h-64 overflow-y-auto hide-scrollbar text-xs">
-                        <div class="py-14 text-center text-slate-500 flex flex-col items-center justify-center gap-2">
-                            <i class="fa-solid fa-basket-shopping text-4xl opacity-20"></i>
-                            <span class="text-xs">Nenhum produto adicionado.</span>
-                        </div>
-                    </div>
-                </div>
+          <div class="space-y-1 text-xs">
+            <div class="flex justify-between"><span>Qtd. total de itens</span><span id="cupom-total-itens" class="font-bold">1</span></div>
+            <div class="flex justify-between"><span>Valor total dos produtos</span><span id="cupom-valor-produtos">R$ 115,00</span></div>
+            <div class="flex justify-between font-black text-sm pt-1 border-t border-dotted border-slate-300"><span>Valor pago</span><span id="cupom-valor-pago">R$ 115,00</span></div>
+          </div>
 
-                <div class="pt-4 border-t border-slate-800 space-y-3">
-                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">FORMA DE PAGAMENTO:</span>
-                    
-                    <div class="grid grid-cols-3 gap-2 text-xs font-bold">
-                        <button onclick="setPagamento('DINHEIRO', this)" class="btn-pag py-2.5 px-2 bg-sky-500 text-white rounded-xl shadow-md border border-sky-400 flex items-center justify-center gap-1.5 transition-all">
-                            <i class="fa-solid fa-money-bill-wave"></i> Dinheiro
-                        </button>
-                        <button onclick="setPagamento('PIX', this)" class="btn-pag py-2.5 px-2 bg-[#16233f] text-slate-300 hover:text-white rounded-xl border border-slate-700/80 flex flex-col items-center justify-center transition-all">
-                            <span class="flex items-center gap-1"><i class="fa-brands fa-pix text-emerald-400"></i> Pix</span>
-                            <span class="text-[9px] text-slate-400 font-normal">(0.99%)</span>
-                        </button>
-                        <button onclick="setPagamento('DEBITO', this)" class="btn-pag py-2.5 px-2 bg-[#16233f] text-slate-300 hover:text-white rounded-xl border border-slate-700/80 flex flex-col items-center justify-center transition-all">
-                            <span class="flex items-center gap-1"><i class="fa-regular fa-credit-card text-sky-400"></i> Débito</span>
-                            <span class="text-[9px] text-slate-400 font-normal">(1.89%)</span>
-                        </button>
-                        <button onclick="setPagamento('CREDITO', this)" class="btn-pag py-2.5 px-2 bg-[#16233f] text-slate-300 hover:text-white rounded-xl border border-slate-700/80 flex flex-col items-center justify-center transition-all">
-                            <span class="flex items-center gap-1"><i class="fa-solid fa-credit-card text-indigo-400"></i> Crédito</span>
-                            <span class="text-[9px] text-slate-400 font-normal">(3.49%)</span>
-                        </button>
-                        <button onclick="setPagamento('CARTAO_GAS', this)" class="btn-pag py-2.5 px-2 bg-[#16233f] text-slate-300 hover:text-white rounded-xl border border-slate-700/80 flex items-center justify-center gap-1 transition-all">
-                            <i class="fa-solid fa-ticket text-amber-400"></i> Cartão Gás
-                        </button>
-                        <button onclick="setPagamento('A_PRAZO', this)" class="btn-pag py-2.5 px-2 bg-[#16233f] text-slate-300 hover:text-white rounded-xl border border-slate-700/80 flex items-center justify-center gap-1 transition-all">
-                            <i class="fa-solid fa-receipt text-rose-400"></i> A Prazo
-                        </button>
-                    </div>
+          <div class="border-b border-dashed border-slate-400 my-1.5"></div>
 
-                    <div class="space-y-1 pt-2">
-                        <div class="flex items-center justify-between text-xs text-slate-400">
-                            <span>Subtotal Produtos:</span>
-                            <span id="subtotalDisplay" class="font-semibold text-slate-300">R$ 0,00</span>
-                        </div>
-                        <div class="flex items-baseline justify-between pt-1 border-t border-slate-800/80">
-                            <span class="text-xs font-black uppercase tracking-wider text-slate-300">TOTAL A COBRAR:</span>
-                            <span id="totalDisplay" class="text-2xl font-black text-white">R$ 0,00</span>
-                        </div>
-                    </div>
+          <div class="space-y-0.5 text-xs">
+            <div class="font-bold text-[10px] uppercase text-slate-500">FORMA DE PAGAMENTO</div>
+            <div class="flex justify-between"><span id="cupom-forma-label">Dinheiro</span><span id="cupom-forma-valor" class="font-bold">R$ 115,00</span></div>
+          </div>
 
-                    <button onclick="concluirVenda()"
-                        class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] font-black text-slate-950 rounded-xl shadow-lg shadow-emerald-500/20 text-sm tracking-wide transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-circle-check text-base"></i>
-                        <span>CONCLUIR VENDA & EMITIR CUPOM</span>
-                    </button>
-                </div>
+          <div class="text-center pt-2 text-xs font-bold" id="cupom-cliente-rodape">LORRANE DA COSTA TAVARES</div>
 
-            </div>
+          <div class="border-b border-dashed border-slate-400 my-1"></div>
 
+          <div class="text-center text-[11px] space-y-0.5 text-slate-500">
+            <div>Pedido nº <span id="cupom-pedido-num">27</span> — <span id="cupom-data-hora">24/10/2026, 10:30</span></div>
+            <div>Atendente Responsável: <span id="cupom-atendente-nome" class="font-bold text-slate-800">Wellington Gontijo</span></div>
+          </div>
+
+          <div class="border-2 border-slate-900 p-2 text-center text-[10px] font-black uppercase mt-2 leading-tight">
+            CUPOM NÃO FISCAL — NÃO É DOCUMENTO FISCAL E NÃO SUBSTITUI A NOTA FISCAL
+          </div>
         </div>
+      </div>
 
-        <!-- ====================================== -->
-        <!-- MÓDULO 2: CAIXA / TURNOS               -->
-        <!-- ====================================== -->
-        <div id="moduloCAIXA" class="hidden w-full space-y-4">
-            <div class="bg-[#101b33] border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-                    <div>
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-cash-register text-orange-400"></i> Gestão do Caixa e Fechamento de Turno
-                        </h2>
-                        <p class="text-xs text-slate-400">Acompanhamento de entradas em tempo real</p>
-                    </div>
-                    <button onclick="fecharCaixa()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition-all">
-                        Encerrar Turno Atual
-                    </button>
-                </div>
+      <!-- Barra Inferior com Envio para WhatsApp Específico da Via -->
+      <div class="flex items-center gap-2 pt-3 border-t border-slate-200 shrink-0 text-xs">
+        <button onclick="window.print()" class="bg-[#15616d] hover:bg-[#0e424a] text-white px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow">
+          <i class="fa-solid fa-print"></i> Imprimir
+        </button>
+        <button onclick="baixarPDFCupom()" class="border border-slate-300 hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-download"></i> Baixar PDF
+        </button>
+        <!-- Botão Dinâmico: Envia para o WhatsApp do Cliente ou do Entregador -->
+        <button onclick="enviarWhatsAppViaAtiva()" id="btn-whats-cupom-dinamico" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow">
+          <i class="fa-brands fa-whatsapp text-sm"></i> <span id="txt-btn-whats-cupom">WhatsApp do Cliente</span>
+        </button>
+        <button onclick="fecharCupom()" class="border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl font-bold transition ml-auto">
+          Fechar
+        </button>
+      </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800">
-                        <span class="text-xs text-slate-400">Total Dinheiro</span>
-                        <p class="text-xl font-black text-emerald-400 mt-1">R$ 1.450,00</p>
-                    </div>
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800">
-                        <span class="text-xs text-slate-400">Total Pix</span>
-                        <p class="text-xl font-black text-cyan-400 mt-1">R$ 2.380,00</p>
-                    </div>
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800">
-                        <span class="text-xs text-slate-400">Total Cartões</span>
-                        <p class="text-xl font-black text-indigo-400 mt-1">R$ 980,00</p>
-                    </div>
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-slate-800">
-                        <span class="text-xs text-slate-400">Sangrias Realizadas</span>
-                        <p class="text-xl font-black text-rose-400 mt-1">R$ 300,00</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====================================== -->
-        <!-- MÓDULO 3: ESTOQUE & 5 GAVETAS          -->
-        <!-- ====================================== -->
-        <div id="moduloESTOQUE" class="hidden w-full space-y-4">
-            <div class="bg-[#101b33] border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                    <i class="fa-solid fa-boxes-stacked text-amber-400"></i> Controle de Estoque (As 5 Gavetas de Vasilhames)
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-emerald-500/30 text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase">1. Cheios (Pronta-Entrega)</span>
-                        <p class="text-3xl font-black text-emerald-400 mt-2">142</p>
-                    </div>
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-sky-500/30 text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase">2. Vazios no Depósito</span>
-                        <p class="text-3xl font-black text-sky-400 mt-2">88</p>
-                    </div>
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-amber-500/30 text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase">3. Em Trânsito (Motos)</span>
-                        <p class="text-3xl font-black text-amber-400 mt-2">16</p>
-                    </div>
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-purple-500/30 text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase">4. Avarias / Reparos</span>
-                        <p class="text-3xl font-black text-purple-400 mt-2">4</p>
-                    </div>
-                    <div class="bg-[#0b1329] p-4 rounded-xl border border-rose-500/30 text-center">
-                        <span class="text-xs text-slate-400 font-bold uppercase">5. Faltas / Inadimplentes</span>
-                        <p class="text-3xl font-black text-rose-400 mt-2">2</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====================================== -->
-        <!-- MÓDULO 4: TELE-ENTREGA / ROTAS         -->
-        <!-- ====================================== -->
-        <div id="moduloENTREGAS" class="hidden w-full space-y-4">
-            <div class="bg-[#101b33] border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
-                    <i class="fa-solid fa-motorcycle text-sky-400"></i> Gestão de Entregas e Entregadores
-                </h2>
-                <p class="text-xs text-slate-400 mb-6">Pedidos despachados em rota de entrega</p>
-
-                <div class="p-4 bg-[#0b1329] rounded-xl border border-slate-800 flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-white">Pedido #1042 - 1x Botijão P13</span>
-                        <p class="text-xs text-slate-400 mt-0.5">Cliente: Lorrane da Costa • Quadra QR 204</p>
-                    </div>
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 rounded-full text-xs font-bold">
-                        Em Rota com Tiago Moto
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====================================== -->
-        <!-- MÓDULO 5: CONFIGURAÇÕES DO SISTEMA     -->
-        <!-- ====================================== -->
-        <div id="moduloCONFIG" class="hidden w-full space-y-4">
-            <div class="bg-[#101b33] border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-6">
-                    <i class="fa-solid fa-gear text-slate-400"></i> Configurações Gerais da Revenda
-                </h2>
-                <div class="max-w-xl space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 mb-1">Nome Fantasia</label>
-                        <input type="text" value="Smart GW Matriz" class="w-full bg-[#0b1329] border border-slate-700 text-xs rounded-xl p-3 text-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 mb-1">Chave Pix Padrão</label>
-                        <input type="text" value="financeiro@smartgw.com.br" class="w-full bg-[#0b1329] border border-slate-700 text-xs rounded-xl p-3 text-white font-mono">
-                    </div>
-                    <button onclick="alert('Configurações salvas!')" class="px-6 py-2.5 bg-sky-500 text-white font-bold text-xs rounded-xl">
-                        Salvar Alterações
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- ========================================== -->
-    <!-- MODAL DE REVENDAS & TESTES (CENTRAL MASTER)-->
-    <!-- ========================================== -->
-    <div id="modalModuloRevendas" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md px-4 py-6 overflow-y-auto">
-        <div class="w-full max-w-3xl bg-[#131f37] border border-slate-700/80 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto hide-scrollbar">
-            
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center text-lg font-black shadow-lg shadow-orange-500/20">
-                        <i class="fa-solid fa-building-circle-check"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-extrabold text-base text-white">Central de Revendas & Clientes de Teste</h3>
-                        <p class="text-xs text-slate-400">Cadastre os clientes, libere senhas e espelhe o sistema deles</p>
-                    </div>
-                </div>
-                <button onclick="fecharModuloRevendas()" class="text-slate-400 hover:text-white p-2 text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <!-- Card Showroom Permanente -->
-            <div class="bg-gradient-to-r from-sky-950/60 to-indigo-950/60 border border-sky-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="px-2 py-0.5 text-[9px] bg-sky-500/20 text-sky-300 border border-sky-500/40 rounded-full font-bold uppercase tracking-wider">Showroom Sem Fim</span>
-                        <h4 class="font-bold text-sm text-white">Ambiente de Demonstração Comercial</h4>
-                    </div>
-                    <p class="text-xs text-slate-300 mt-1">Abra este ambiente nas apresentações com clientes para registrar vendas sem mexer na sua revenda oficial.</p>
-                </div>
-                <button onclick="entrarModoShowroom()" class="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs rounded-xl transition-all whitespace-nowrap shadow">
-                    <i class="fa-solid fa-play mr-1"></i> Abrir Demonstração
-                </button>
-            </div>
-
-            <!-- Formulário: Cadastrar Nova Revenda -->
-            <div class="bg-[#0b1329] p-5 rounded-2xl border border-slate-800 space-y-3.5">
-                <h4 class="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus-circle"></i> Cadastrar Nova Revenda (Liberar 30 Dias)
-                </h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" id="novaRevendaNome" placeholder="Nome Fantasia (ex: Gás Central)"
-                        class="px-3.5 py-2.5 bg-[#131f37] border border-slate-700 text-xs rounded-xl text-white focus:outline-none focus:border-orange-500">
-                    <input type="text" id="novaRevendaDoc" placeholder="CNPJ ou CPF do Cliente"
-                        class="px-3.5 py-2.5 bg-[#131f37] border border-slate-700 text-xs rounded-xl text-white font-mono focus:outline-none focus:border-orange-500">
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input type="text" id="novaRevendaWhats" placeholder="WhatsApp (com DDD)"
-                        class="px-3.5 py-2.5 bg-[#131f37] border border-slate-700 text-xs rounded-xl text-white focus:outline-none focus:border-orange-500">
-                    <div class="flex gap-2">
-                        <input type="text" id="novaRevendaSenha" placeholder="Senha provisória (ex: 123456)"
-                            class="flex-1 px-3.5 py-2.5 bg-[#131f37] border border-slate-700 text-xs rounded-xl text-white font-mono focus:outline-none focus:border-orange-500">
-                        <button onclick="gerarSenhaCliente()" type="button" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl border border-slate-700" title="Gerar Senha">
-                            <i class="fa-solid fa-shuffle"></i>
-                        </button>
-                    </div>
-                </div>
-                <button onclick="salvarNovaRevenda()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
-                    <i class="fa-solid fa-check"></i> Salvar e Liberar Acesso do Cliente
-                </button>
-            </div>
-
-            <!-- Tabela de Revendas Cadastradas -->
-            <div>
-                <div class="flex items-center justify-between mb-2">
-                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                        Revendas Ativas (<span id="contagemRevendas">0</span>/10)
-                    </h4>
-                    <span class="text-[11px] text-slate-400">Clique em "Visão da Revenda" para entrar nela</span>
-                </div>
-                <div class="max-h-60 overflow-y-auto border border-slate-800 rounded-2xl divide-y divide-slate-800" id="listaRevendasCadastradas"></div>
-            </div>
-
-            <div class="text-right pt-2 border-t border-slate-800">
-                <button onclick="fecharModuloRevendas()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl text-slate-300">
-                    Fechar
-                </button>
-            </div>
-        </div>
     </div>
+  </div>
 
-    <!-- JAVASCRIPT REATIVO -->
-    <script>
-        const MASTER_CREDS = {
-            identificadores: ["vozdoton@gmail.com", "000.000.000-00", "00000000000", "wellington"],
-            senha: "admin123",
-            nomeRevenda: "Smart GW (Matriz Oficial)",
-            proprietario: "Wellington Gontijo",
-            cnpj: "12.345.678/0001-90"
-        };
+  <!-- ============================================================ -->
+  <!-- MODAL: RELATÓRIO DE FATURAMENTO COM FILTROS DE DIA/MÊS/ANO   -->
+  <!-- ============================================================ -->
+  <div id="modal-faturamento" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-black text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-emerald-400"></i> Relatório de Faturamento Consolidado
+        </h3>
+        <button onclick="fecharModal('modal-faturamento')" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
 
-        function carregarRevendas() {
-            const salvas = localStorage.getItem('smartgw_contas_tenants');
-            if (salvas) return JSON.parse(salvas);
-            const padrao = {
-                "11111111111": { nome: "Revenda Modelo Piloto", pass: "123456", whats: "61999999999", doc: "111.111.111-11" }
-            };
-            localStorage.setItem('smartgw_contas_tenants', JSON.stringify(padrao));
-            return padrao;
-        }
+      <!-- Barra de Filtros Completos (Período, Forma de Pagamento e Atendente) -->
+      <div class="bg-[#0b1322] p-3.5 rounded-2xl border border-slate-800 space-y-2.5">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <!-- Filtro de Período -->
+          <div>
+            <label class="block text-slate-400 font-bold mb-1 text-[10px] uppercase">Período:</label>
+            <select id="filtro-faturamento-periodo" onchange="aplicarFiltrosFaturamento()" class="w-full bg-[#131d31] border border-slate-700 rounded-xl p-2 text-white font-bold outline-none text-xs">
+              <option value="HOJE">Hoje (Dia)</option>
+              <option value="MES">Mês Atual</option>
+              <option value="ANO">Ano Atual</option>
+            </select>
+          </div>
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const idInput = document.getElementById('loginId').value.trim();
-            const passInput = document.getElementById('loginPass').value.trim();
-            const erroEl = document.getElementById('loginError');
-            const idLimpo = idInput.toLowerCase().replace(/\D/g, "");
+          <!-- Filtro de Forma de Pagamento -->
+          <div>
+            <label class="block text-slate-400 font-bold mb-1 text-[10px] uppercase">Forma de Pagto:</label>
+            <select id="filtro-faturamento-pagamento" onchange="aplicarFiltrosFaturamento()" class="w-full bg-[#131d31] border border-slate-700 rounded-xl p-2 text-white font-bold outline-none text-xs">
+              <option value="TODAS">Todas as Formas</option>
+              <option value="DINHEIRO">Dinheiro</option>
+              <option value="PIX">Pix</option>
+              <option value="DEBITO">Débito</option>
+              <option value="CREDITO">Crédito</option>
+              <option value="CARTAO_GAS">Cartão Gás / Social</option>
+              <option value="PRAZO">A Prazo / Fiado</option>
+            </select>
+          </div>
 
-            // 1. Acesso do Dono (Wellington)
-            const isMaster = MASTER_CREDS.identificadores.some(id => id.toLowerCase() === idInput.toLowerCase() || (idLimpo && id.replace(/\D/g, "") === idLimpo));
-            if (isMaster && passInput === MASTER_CREDS.senha) {
-                sessionStorage.setItem('smartgw_auth', 'true');
-                sessionStorage.setItem('smartgw_is_owner', 'true');
-                sessionStorage.setItem('smartgw_active_tenant', MASTER_CREDS.nomeRevenda);
-                sessionStorage.setItem('smartgw_active_doc', MASTER_CREDS.cnpj);
-                sessionStorage.setItem('smartgw_active_owner', MASTER_CREDS.proprietario);
-                aplicarSessao();
-                return;
-            }
+          <!-- Filtro de Atendente -->
+          <div>
+            <label class="block text-slate-400 font-bold mb-1 text-[10px] uppercase">Atendente:</label>
+            <select id="filtro-faturamento-atendente" onchange="aplicarFiltrosFaturamento()" class="w-full bg-[#131d31] border border-slate-700 rounded-xl p-2 text-white font-bold outline-none text-xs">
+              <option value="TODOS">Todos</option>
+              <option value="Wellington Gontijo">Wellington</option>
+              <option value="Jhony">Jhony</option>
+              <option value="Marcos (Moto 01)">Marcos</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-            // 2. Acesso da Revenda Cliente
-            const revendas = carregarRevendas();
-            const clienteChave = Object.keys(revendas).find(k => k === idInput || k === idLimpo || revendas[k].doc === idInput);
-            if (clienteChave && revendas[clienteChave].pass === passInput) {
-                const c = revendas[clienteChave];
-                sessionStorage.setItem('smartgw_auth', 'true');
-                sessionStorage.setItem('smartgw_is_owner', 'false');
-                sessionStorage.setItem('smartgw_active_tenant', c.nome);
-                sessionStorage.setItem('smartgw_active_doc', c.doc || clienteChave);
-                sessionStorage.setItem('smartgw_active_owner', c.nome);
-                aplicarSessao();
-                return;
-            }
+      <!-- Resultados Detalhados do Relatório Filtrado -->
+      <div class="space-y-3">
+        <div class="bg-[#0b1322] p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+          <span class="text-slate-400 font-bold uppercase text-[11px]">Total Bruto Faturado:</span>
+          <strong class="text-2xl font-black text-emerald-400 font-mono" id="lbl-faturamento-filtrado-total">R$ 2.450,00</strong>
+        </div>
 
-            erroEl.classList.remove('hidden');
-        }
+        <div class="bg-[#0b1322] p-3 rounded-xl border border-slate-800 space-y-1.5 font-mono text-xs">
+          <div class="flex justify-between text-slate-300"><span>• Dinheiro em Gaveta:</span><strong id="faturamento-val-dinheiro">R$ 450,00</strong></div>
+          <div class="flex justify-between text-slate-300"><span>• Pix Instantâneo:</span><strong id="faturamento-val-pix">R$ 980,00</strong></div>
+          <div class="flex justify-between text-slate-300"><span>• Cartão Débito:</span><strong id="faturamento-val-debito">R$ 420,00</strong></div>
+          <div class="flex justify-between text-slate-300"><span>• Cartão Crédito:</span><strong id="faturamento-val-credito">R$ 488,00</strong></div>
+          <div class="flex justify-between text-slate-300"><span>• Cartão Gás / Vales:</span><strong id="faturamento-val-vales">R$ 112,00</strong></div>
+        </div>
 
-        function aplicarSessao() {
-            const auth = sessionStorage.getItem('smartgw_auth');
-            const isOwner = sessionStorage.getItem('smartgw_is_owner') === 'true';
-            const isEspelho = sessionStorage.getItem('smartgw_is_espelho') === 'true';
+        <div class="bg-emerald-950/30 border border-emerald-500/20 p-3 rounded-xl flex justify-between items-center text-emerald-400">
+          <span class="font-bold">Lucro Líquido Real Apurado:</span>
+          <strong class="text-base font-black font-mono" id="lbl-faturamento-lucro-real">R$ 770,00</strong>
+        </div>
+      </div>
 
-            if (auth === 'true') {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('nomeRevendaHeader').innerText = sessionStorage.getItem('smartgw_active_tenant') || "Smart GW";
-                document.getElementById('headerCnpjDisplay').innerText = `CNPJ: ${sessionStorage.getItem('smartgw_active_doc') || ""}`;
-                document.getElementById('headerProprietario').innerText = sessionStorage.getItem('smartgw_active_owner') || "";
+      <button onclick="fecharModal('modal-faturamento')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-xl font-bold">
+        Fechar Relatório
+      </button>
+    </div>
+  </div>
 
-                if (isOwner) {
-                    document.getElementById('badgeOwner').classList.remove('hidden');
-                    document.getElementById('btnCadastrarRevendaTop').classList.remove('hidden');
-                } else {
-                    document.getElementById('badgeOwner').classList.add('hidden');
-                    document.getElementById('btnCadastrarRevendaTop').classList.add('hidden');
-                }
+  <!-- DEMAIS MODAIS (PEDIDOS, ENTREGAS, CLIENTE, SANGRIA, FECHAMENTO DE CAIXA) -->
+  <div id="modal-pedidos" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 text-xs my-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-black text-base text-white flex items-center gap-2"><i class="fa-solid fa-receipt text-blue-400"></i> Pedidos Realizados Hoje</h3>
+        <button onclick="fecharModal('modal-pedidos')" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="max-h-96 overflow-y-auto custom-scroll space-y-2" id="lista-pedidos-concluidos"></div>
+      <button onclick="fecharModal('modal-pedidos')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-xl font-bold">Fechar</button>
+    </div>
+  </div>
 
-                if (isEspelho) {
-                    document.getElementById('modoEspelhoBarra').classList.remove('hidden');
-                    document.getElementById('espelhoNomeEmpresa').innerText = sessionStorage.getItem('smartgw_active_tenant');
-                } else {
-                    document.getElementById('modoEspelhoBarra').classList.add('hidden');
-                }
-            } else {
-                document.getElementById('loginOverlay').classList.remove('hidden');
-            }
-        }
+  <div id="modal-entregas" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
+        <h3 class="font-black text-base text-white flex items-center gap-2"><i class="fa-solid fa-motorcycle text-cyan-400"></i> Entregas & Rastreamento</h3>
+        <button onclick="fecharModal('modal-entregas')" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="overflow-y-auto custom-scroll space-y-2.5 my-3 text-xs pr-1" id="lista-entregas-ativas"></div>
+      <button onclick="fecharModal('modal-entregas')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-xl text-xs font-black">Fechar</button>
+    </div>
+  </div>
 
-        function handleLogout() {
-            sessionStorage.clear();
-            location.reload();
-        }
+  <div id="modal-cliente" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-3 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl flex flex-col max-h-[88vh]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0"><h3 class="font-black text-base text-white">Cadastrar Cliente</h3><button onclick="fecharModal('modal-cliente')" class="text-slate-400 hover:text-white">✕</button></div>
+      <div class="overflow-y-auto custom-scroll space-y-3 my-3 text-xs pr-1">
+        <div><label class="block text-slate-400 font-bold mb-1">Nome Completo</label><input type="text" id="cli-modal-nome" placeholder="Nome" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-slate-400 font-bold mb-1">Telefone / WhatsApp</label><input type="text" id="cli-modal-fone" placeholder="(61) 98888-0000" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white outline-none"></div>
+          <div><label class="block text-slate-400 font-bold mb-1">Endereço de Entrega</label><input type="text" id="cli-modal-end" placeholder="Quadra, Rua, Casa" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white outline-none"></div>
+        </div>
+      </div>
+      <div class="flex gap-2 pt-2 border-t border-slate-800 shrink-0">
+        <button onclick="fecharModal('modal-cliente')" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs font-bold">Cancelar</button>
+        <button onclick="salvarCliente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-xs font-black">Salvar Cliente</button>
+      </div>
+    </div>
+  </div>
 
-        // Navegação de Abas no Topo
-        function alternarModulo(modulo, btn) {
-            ['moduloPDV', 'moduloCAIXA', 'moduloESTOQUE', 'moduloENTREGAS', 'moduloCONFIG'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(`modulo${modulo}`).classList.remove('hidden');
+  <div id="modal-sangria-rapida" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3"><h3 class="font-black text-base text-white">Sangria Rápida de Caixa</h3><button onclick="fecharModal('modal-sangria-rapida')" class="text-slate-400 hover:text-white">✕</button></div>
+      <div class="space-y-3">
+        <div><label class="block text-slate-400 font-bold mb-1">Motivo</label><input type="text" id="sangria-pdv-motivo" placeholder="Ex: Abastecimento" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white outline-none"></div>
+        <div><label class="block text-slate-400 font-bold mb-1">Valor (R$)</label><input type="number" id="sangria-pdv-valor" value="50.00" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-rose-400 font-mono font-bold outline-none"></div>
+      </div>
+      <div class="flex gap-2 pt-2"><button onclick="fecharModal('modal-sangria-rapida')" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl font-bold">Cancelar</button><button onclick="confirmarSangriaRapida()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl font-black">Registrar</button></div>
+    </div>
+  </div>
 
-            document.querySelectorAll('.nav-item').forEach(b => {
-                b.className = "nav-item px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2";
-            });
-            btn.className = "nav-item px-4 py-2 rounded-xl text-xs font-bold transition-all bg-sky-500 text-white shadow-md shadow-sky-500/20 flex items-center gap-2";
-        }
+  <div id="modal-fechar-caixa" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3"><h3 class="font-black text-base text-white">Fechamento de Caixa</h3><button onclick="fecharModal('modal-fechar-caixa')" class="text-slate-400 hover:text-white">✕</button></div>
+      <p class="text-slate-400">Conferência dos valores apurados fisicamente no turno.</p>
+      <div class="flex gap-2 pt-2"><button onclick="fecharModal('modal-fechar-caixa')" class="flex-1 bg-slate-800 text-slate-300 py-2 rounded-xl font-bold">Cancelar</button><button onclick="fecharModal('modal-fechar-caixa'); alert('Turno fechado com sucesso!');" class="flex-1 bg-amber-600 text-white py-2 rounded-xl font-black">Fechar Turno</button></div>
+    </div>
+  </div>
 
-        // Gestão de Revendas
-        function abrirModuloRevendas() {
-            document.getElementById('modalModuloRevendas').classList.remove('hidden');
-            renderizarRevendasCadastradas();
-        }
+  <!-- JAVASCRIPT PRINCIPAL -->
+  <script>
+    let destinoAtual = 'BALCAO';
+    let formaPagamentoAtual = 'DINHEIRO';
+    let carrinho = [];
+    let viaCupomAtual = 'CLIENTE';
+    let entregadorDespachadoAtual = null;
 
-        function fecharModuloRevendas() {
-            document.getElementById('modalModuloRevendas').classList.add('hidden');
-        }
+    let configCaixa = {
+      nomeBalcao: 'Balcão (Portaria)',
+      nomeEntrega: 'Tele-Entrega',
+      modoFrete: 'EMBUTIDO'
+    };
 
-        function gerarSenhaCliente() {
-            document.getElementById('novaRevendaSenha').value = Math.floor(100000 + Math.random() * 900000).toString();
-        }
+    let formasPagamento = [
+      { id: 'DINHEIRO', nome: 'Dinheiro', taxa: 0.00, icone: 'fa-solid fa-money-bill-wave text-emerald-400', ativo: true },
+      { id: 'PIX', nome: 'Pix (0.99%)', taxa: 0.0099, icone: 'fa-brands fa-pix text-emerald-400', ativo: true },
+      { id: 'DEBITO', nome: 'Débito (1.89%)', taxa: 0.0189, icone: 'fa-solid fa-credit-card text-cyan-400', ativo: true },
+      { id: 'CREDITO', nome: 'Crédito (3.49%)', taxa: 0.0349, icone: 'fa-regular fa-credit-card text-blue-400', ativo: true },
+      { id: 'CARTAO_GAS', nome: 'Cartão Gás', taxa: 0.02, icone: 'fa-solid fa-hand-holding-dollar text-amber-400', ativo: true },
+      { id: 'PRAZO', nome: 'A Prazo', taxa: 0.00, icone: 'fa-solid fa-file-invoice-dollar text-rose-400', ativo: true }
+    ];
 
-        function salvarNovaRevenda() {
-            const nome = document.getElementById('novaRevendaNome').value.trim();
-            const doc = document.getElementById('novaRevendaDoc').value.trim();
-            const whats = document.getElementById('novaRevendaWhats').value.trim();
-            const pass = document.getElementById('novaRevendaSenha').value.trim();
-            if (!nome || !doc || !pass) return alert("Preencha Nome, CNPJ/CPF e a Senha.");
+    let produtos = [
+      { id: 'P13', nome: 'Botijão GLP 13kg', categoria: 'GAS', precoBalcao: 115.00, precoEntrega: 125.00, custo: 75.00, retornavel: true },
+      { id: 'G20L', nome: 'Galão Água 20L', categoria: 'AGUA', precoBalcao: 14.00, precoEntrega: 18.00, custo: 6.50, retornavel: true },
+      { id: 'GELO5', nome: 'Gelo em Cubos 5kg', categoria: 'OUTROS', precoBalcao: 12.00, precoEntrega: 15.00, custo: 5.00, retornavel: false }
+    ];
 
-            const docLimpo = doc.replace(/\D/g, "") || doc;
-            const revendas = carregarRevendas();
-            revendas[docLimpo] = { nome, doc, whats, pass };
-            localStorage.setItem('smartgw_contas_tenants', JSON.stringify(revendas));
-            renderizarRevendasCadastradas();
+    let colaboradores = [
+      { id: 1, nomeCompleto: 'Wellington da Silva Gontijo', nomeGuerra: 'Wellington Gontijo', cargo: 'PROPRIETARIO', cargoLabel: 'Proprietário', fone: '5561987654321' },
+      { id: 2, nomeCompleto: 'Jhony Atendente', nomeGuerra: 'Jhony', cargo: 'ATENDENTE', cargoLabel: 'Atendente', fone: '5561992223333' },
+      { id: 3, nomeCompleto: 'Marcos Souza Silva', nomeGuerra: 'Marcos (Moto 01)', cargo: 'ENTREGADOR', cargoLabel: 'Entregador', fone: '5561983334444' }
+    ];
 
-            document.getElementById('novaRevendaNome').value = "";
-            document.getElementById('novaRevendaDoc').value = "";
-            document.getElementById('novaRevendaWhats').value = "";
-            document.getElementById('novaRevendaSenha').value = "";
-            alert(`Revenda ${nome} cadastrada com sucesso!`);
-        }
+    let operadorAtualId = 1;
 
-        function renderizarRevendasCadastradas() {
-            const revendas = carregarRevendas();
-            const container = document.getElementById('listaRevendasCadastradas');
-            const chaves = Object.keys(revendas);
-            document.getElementById('contagemRevendas').innerText = chaves.length;
+    let pedidosHoje = [
+      { num: '#004481', hora: '16:22', cliente: 'Consumidor Balcão', atendente: 'Wellington Gontijo', itens: '1x Botijão GLP 13kg', valor: 115.00, pag: 'Dinheiro' },
+      { num: '#004480', hora: '15:40', cliente: 'Restaurante Fogão Nobre', atendente: 'Jhony', itens: '2x Botijão GLP 13kg', valor: 230.00, pag: 'A Prazo' },
+      { num: '#004479', hora: '14:15', cliente: 'Dona Francisca Maria', atendente: 'Jhony', itens: '1x Galão Água 20L', valor: 14.00, pag: 'Pix' }
+    ];
 
-            if (chaves.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 p-4 text-center">Nenhuma revenda cadastrada.</p>`;
-                return;
-            }
+    let entregasAtivas = [
+      { id: 101, cliente: 'Restaurante Fogão Nobre', item: '2x Botijão P13', endereco: 'QN 202 Conjunto 4 - Samambaia Sul', motoboy: 'Marcos (Moto 01)', status: 'EM_ROTA', hora: '14:20' },
+      { id: 102, cliente: 'LORRANE DA COSTA TAVARES', item: '1x Água 20L', endereco: 'Quadra QR 204 Conjunto 1, 3 — casa', motoboy: 'Marcos (Moto 01)', status: 'EM_ROTA', hora: '16:23' }
+    ];
 
-            container.innerHTML = chaves.map(k => {
-                const r = revendas[k];
-                return `
-                    <div class="p-3.5 bg-[#0b1329] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-white">${r.nome}</span>
-                                <span class="text-[9px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-semibold">30 Dias Ativo</span>
-                            </div>
-                            <p class="text-[11px] text-slate-400 font-mono mt-0.5">${r.doc} • Senha: <span class="text-orange-400 font-bold">${r.pass}</span></p>
-                        </div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <button onclick="espelharRevenda('${k}')" class="px-2.5 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
-                                <i class="fa-solid fa-eye"></i> Visão da Revenda
-                            </button>
-                            <button onclick="copiarWhatsApp('${r.nome}', '${r.doc}', '${r.pass}')" class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
-                                <i class="fa-brands fa-whatsapp"></i> WhatsApp
-                            </button>
-                            <button onclick="removerRevenda('${k}')" class="text-slate-500 hover:text-rose-400 px-2 py-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                        </div>
-                    </div>`;
-            }).join('');
-        }
+    function setTab(tabId) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('bg-blue-600', 'text-white', 'shadow');
+        b.classList.add('text-slate-300');
+      });
 
-        function removerRevenda(chave) {
-            if (confirm("Deseja remover o acesso desta revenda?")) {
-                const r = carregarRevendas();
-                delete r[chave];
-                localStorage.setItem('smartgw_contas_tenants', JSON.stringify(r));
-                renderizarRevendasCadastradas();
-            }
-        }
+      document.getElementById('view-' + tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('btn-tab-' + tabId);
+      if(activeBtn) {
+        activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow');
+        activeBtn.classList.remove('text-slate-300');
+      }
+    }
 
-        function espelharRevenda(chave) {
-            const r = carregarRevendas()[chave];
-            if (!r) return;
-            sessionStorage.setItem('smartgw_active_tenant', r.nome);
-            sessionStorage.setItem('smartgw_active_doc', r.doc);
-            sessionStorage.setItem('smartgw_active_owner', r.nome);
-            sessionStorage.setItem('smartgw_is_espelho', 'true');
-            fecharModuloRevendas();
-            aplicarSessao();
-        }
+    // ============================================================
+    // WHATSAPP: CADASTRO RÁPIDO & ABERTURA DIRETA DO PDV
+    // ============================================================
+    function carregarChatWhats(nome, fone, end) {
+      document.getElementById('whats-chat-nome').textContent = nome;
+      document.getElementById('whats-chat-sub').textContent = `${fone} • ${end || 'Endereço pendente'}`;
+    }
 
-        function voltarParaMinhaRevenda() {
-            sessionStorage.setItem('smartgw_active_tenant', MASTER_CREDS.nomeRevenda);
-            sessionStorage.setItem('smartgw_active_doc', MASTER_CREDS.cnpj);
-            sessionStorage.setItem('smartgw_active_owner', MASTER_CREDS.proprietario);
-            sessionStorage.setItem('smartgw_is_espelho', 'false');
-            aplicarSessao();
-        }
+    function cadastrarClienteEVenderViaWhats() {
+      const nome = document.getElementById('whats-chat-nome').textContent;
+      const sub = document.getElementById('whats-chat-sub').textContent;
+      const partes = sub.split('•');
+      const fone = partes[0] ? partes[0].trim() : '(61) 98888-0000';
+      const end = partes[1] ? partes[1].trim() : '';
 
-        function entrarModoShowroom() {
-            sessionStorage.setItem('smartgw_active_tenant', 'Smart GW Showroom (Demo Infinita)');
-            sessionStorage.setItem('smartgw_active_doc', '00.000.000/0001-00');
-            sessionStorage.setItem('smartgw_active_owner', 'Demonstração Comercial');
-            sessionStorage.setItem('smartgw_is_espelho', 'true');
-            fecharModuloRevendas();
-            aplicarSessao();
-        }
+      // Preenche os dados no Caixa PDV
+      document.getElementById('cli-nome').value = nome;
+      document.getElementById('cli-fone').value = fone;
+      document.getElementById('cli-end').value = end || 'Quadra QR 204 Conjunto 1, 3 — casa';
 
-        function copiarWhatsApp(nome, doc, pass) {
-            const texto = `Olá! O seu acesso exclusivo ao *Smart GW* está liberado para o teste gratuito de 30 dias.\n\n🔗 *Link do Sistema:* ${window.location.origin}\n🏢 *Login (CNPJ/CPF):* ${doc}\n🔑 *Senha Provisória:* ${pass}\n\nAbra o link e acesse direto para começar a operar!`;
-            navigator.clipboard.writeText(texto).then(() => alert("Convite copiado para colar no WhatsApp do cliente!"));
-        }
+      // Muda para tele-entrega e leva o operador direto para o PDV
+      setDestino('ENTREGA');
+      setTab('pdv');
+      alert(`Cliente ${nome} selecionado com sucesso! Pronto para registrar o pedido no Caixa.`);
+    }
 
-        // Lógica do PDV
-        let carrinho = [];
-        let destinoAtual = 'BALCAO';
-        let pagamentoAtual = 'DINHEIRO';
+    // ============================================================
+    // FLUXO DE CONCLUSÃO DE VENDA
+    // ============================================================
+    function cliqueConcluirVenda() {
+      if (carrinho.length === 0) {
+        adicionarItem('P13');
+      }
 
-        function setDestino(tipo) {
-            destinoAtual = tipo;
-            const btnB = document.getElementById('btnBalcao');
-            const btnE = document.getElementById('btnEntrega');
-            if (tipo === 'BALCAO') {
-                btnB.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-sky-500 text-white shadow-md shadow-sky-500/20 flex items-center gap-1.5";
-                btnE.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
-            } else {
-                btnE.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-sky-500 text-white shadow-md shadow-sky-500/20 flex items-center gap-1.5";
-                btnB.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
-            }
-            renderizarCarrinho();
-        }
+      if (destinoAtual === 'BALCAO') {
+        document.getElementById('box-seletor-vias-cupom').classList.add('hidden');
+        document.getElementById('bloco-via-entregador').classList.add('hidden');
+        entregadorDespachadoAtual = null;
+        finalizarVenda();
+      } else {
+        abrirModalCriarCarregamento();
+      }
+    }
 
-        function setPagamento(forma, elemento) {
-            pagamentoAtual = forma;
-            document.querySelectorAll('.btn-pag').forEach(btn => {
-                btn.className = "btn-pag py-2.5 px-2 bg-[#16233f] text-slate-300 hover:text-white rounded-xl border border-slate-700/80 flex items-center justify-center gap-1 transition-all";
-            });
-            elemento.className = "btn-pag py-2.5 px-2 bg-sky-500 text-white rounded-xl shadow-md border border-sky-400 flex items-center justify-center gap-1 transition-all";
-        }
+    function abrirModalCriarCarregamento() {
+      const selectMotoboy = document.getElementById('carregamento-entregador-select');
+      const entregadores = colaboradores.filter(c => c.cargo === 'ENTREGADOR' || c.cargo === 'PROPRIETARIO');
+      selectMotoboy.innerHTML = entregadores.map(e => `
+        <option value="${e.nomeGuerra}">${e.nomeGuerra} (${e.cargoLabel})</option>
+      `).join('');
 
-        function adicionarAoCarrinho(nome, precoBalcao, precoEntrega, custo, cat) {
-            const preco = destinoAtual === 'BALCAO' ? precoBalcao : precoEntrega;
-            const existente = carrinho.find(i => i.nome === nome);
-            if (existente) existente.qtd += 1;
-            else carrinho.push({ nome, preco, custo, qtd: 1, cat });
-            renderizarCarrinho();
-        }
+      document.getElementById('carregamento-preview-cliente').textContent = document.getElementById('cli-nome').value.trim() || 'Cliente';
+      document.getElementById('carregamento-preview-endereco').textContent = document.getElementById('cli-end').value.trim() || 'Endereço pendente';
+      document.getElementById('carregamento-preview-itens').textContent = carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ');
+      document.getElementById('carregamento-preview-total').textContent = document.getElementById('lbl-total-cobrar').textContent;
 
-        function renderizarCarrinho() {
-            const lista = document.getElementById('carrinhoLista');
-            if (carrinho.length === 0) {
-                lista.innerHTML = `
-                    <div class="py-14 text-center text-slate-500 flex flex-col items-center justify-center gap-2">
-                        <i class="fa-solid fa-basket-shopping text-4xl opacity-20"></i>
-                        <span class="text-xs">Nenhum produto adicionado.</span>
-                    </div>`;
-                document.getElementById('subtotalDisplay').innerText = "R$ 0,00";
-                document.getElementById('totalDisplay').innerText = "R$ 0,00";
-                return;
-            }
+      document.getElementById('modal-criar-carregamento').classList.remove('hidden');
+    }
 
-            let total = 0;
-            lista.innerHTML = carrinho.map((item, index) => {
-                const sub = item.preco * item.qtd;
-                total += sub;
-                return `
-                    <div class="flex items-center justify-between p-3 bg-[#0b1329] rounded-xl border border-slate-800">
-                        <div>
-                            <p class="font-bold text-white text-xs">${item.nome}</p>
-                            <span class="text-[10px] text-slate-400 font-mono">${item.qtd}x R$ ${item.preco.toFixed(2).replace('.', ',')}</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="font-extrabold text-orange-400 text-xs">R$ ${sub.toFixed(2).replace('.', ',')}</span>
-                            <button onclick="carrinho.splice(${index}, 1); renderizarCarrinho();" class="text-slate-500 hover:text-rose-400 px-1">
-                                <i class="fa-solid fa-trash-can text-[11px]"></i>
-                            </button>
-                        </div>
-                    </div>`;
-            }).join('');
+    function confirmarCarregamentoEDespachar() {
+      const motoboyNome = document.getElementById('carregamento-entregador-select').value;
+      entregadorDespachadoAtual = colaboradores.find(c => c.nomeGuerra === motoboyNome) || colaboradores[2];
 
-            const f = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            document.getElementById('subtotalDisplay').innerText = f;
-            document.getElementById('totalDisplay').innerText = f;
-        }
+      const cliente = document.getElementById('cli-nome').value.trim() || 'Cliente';
+      const endereco = document.getElementById('cli-end').value.trim();
+      const itens = carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ');
 
-        function limparCarrinho() {
-            carrinho = [];
-            renderizarCarrinho();
-        }
+      entregasAtivas.unshift({
+        id: Date.now(),
+        cliente: cliente,
+        item: itens,
+        endereco: endereco,
+        motoboy: motoboyNome,
+        status: 'EM_ROTA',
+        hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      document.getElementById('dash-qtd-entregas').textContent = `${entregasAtivas.length} Entregas`;
 
-        function concluirVenda() {
-            if (carrinho.length === 0) return alert("Adicione produtos ao pedido.");
-            alert("Venda concluída com sucesso no Smart GW!");
-            limparCarrinho();
-        }
+      document.getElementById('cupom-entregador-despachado').textContent = motoboyNome;
+      fecharModal('modal-criar-carregamento');
 
-        function registrarSangria() {
-            const v = prompt("Valor da sangria (R$):");
-            if (v) alert(`Sangria de R$ ${v} registrada.`);
-        }
+      document.getElementById('box-seletor-vias-cupom').classList.remove('hidden');
+      finalizarVenda();
+    }
 
-        function fecharCaixa() {
-            if (confirm("Fechar turno do caixa?")) alert("Caixa encerrado com sucesso.");
-        }
+    function finalizarVenda() {
+      const clienteNome = document.getElementById('cli-nome').value.trim() || 'LORRANE DA COSTA TAVARES';
+      const clienteEnd = document.getElementById('cli-end').value.trim() || 'Quadra QR 204 Conjunto 1, 3 — casa';
+      const totalFinal = carrinho.reduce((acc, i) => acc + (i.preco * i.qtd), 0);
 
-        function cadastrarClienteNovoPrompt() {
-            const n = prompt("Nome do cliente:");
-            if (n) document.getElementById('cliNome').value = n;
-        }
+      document.getElementById('cupom-pedido-num').textContent = '27';
+      document.getElementById('cupom-data-hora').textContent = new Date().toLocaleString('pt-BR');
+      document.getElementById('cupom-atendente-nome').textContent = obterOperadorAtual().nomeGuerra;
 
-        window.onload = aplicarSessao;
-    </script>
+      document.getElementById('cupom-cliente-rodape').textContent = clienteNome.toUpperCase();
+      document.getElementById('cupom-entregador-nome').textContent = clienteNome.toUpperCase();
+      document.getElementById('cupom-entregador-end').textContent = clienteEnd;
+
+      document.getElementById('cupom-linhas-produtos').innerHTML = carrinho.map(item => `
+        <div class="flex justify-between items-center text-xs">
+          <span class="w-20 truncate">${item.id}</span>
+          <span class="flex-1 px-2 font-bold">${item.nome}</span>
+          <span class="w-16 text-center">${item.qtd}.000 un</span>
+          <span class="w-16 text-right">R$ ${item.preco.toFixed(2).replace('.', ',')}</span>
+          <span class="w-16 text-right font-bold">R$ ${(item.preco * item.qtd).toFixed(2).replace('.', ',')}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('cupom-total-itens').textContent = carrinho.reduce((acc, i) => acc + i.qtd, 0);
+      document.getElementById('cupom-valor-produtos').textContent = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('cupom-valor-pago').textContent = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
+
+      const formaObj = formasPagamento.find(f => f.id === formaPagamentoAtual);
+      document.getElementById('cupom-forma-label').textContent = formaObj ? formaObj.nome : 'Dinheiro';
+      document.getElementById('cupom-forma-valor').textContent = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
+
+      alternarViaCupom('CLIENTE');
+      document.getElementById('modal-cupom').classList.remove('hidden');
+    }
+
+    function alternarViaCupom(via) {
+      viaCupomAtual = via;
+      const btnCliente = document.getElementById('btn-via-cliente');
+      const btnEntregador = document.getElementById('btn-via-entregador');
+      const blocoEntregador = document.getElementById('bloco-via-entregador');
+      const txtBtnWhats = document.getElementById('txt-btn-whats-cupom');
+
+      if (via === 'CLIENTE') {
+        btnCliente.className = 'px-4 py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow';
+        btnEntregador.className = 'px-4 py-2 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition';
+        blocoEntregador.classList.add('hidden');
+        txtBtnWhats.textContent = 'WhatsApp do Cliente';
+      } else {
+        btnEntregador.className = 'px-4 py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow';
+        btnCliente.className = 'px-4 py-2 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition';
+        blocoEntregador.classList.remove('hidden');
+        txtBtnWhats.textContent = 'WhatsApp do Entregador';
+      }
+    }
+
+    // Compartilhamento Inteligente no WhatsApp: Cliente vs Entregador
+    function enviarWhatsAppViaAtiva() {
+      if (viaCupomAtual === 'CLIENTE') {
+        const foneCliente = document.getElementById('cli-fone').value.replace(/\D/g, '') || '5561995926936';
+        const cliente = document.getElementById('cupom-cliente-rodape').textContent;
+        const total = document.getElementById('cupom-valor-pago').textContent;
+        const msg = encodeURIComponent(`*SMART GW - COMPROVANTE DE COMPRA*\nCliente: ${cliente}\nTotal: ${total}\nAgradecemos a preferência!`);
+        window.open(`https://wa.me/${foneCliente}?text=${msg}`, '_blank');
+      } else {
+        const foneEntregador = (entregadorDespachadoAtual && entregadorDespachadoAtual.fone) ? entregadorDespachadoAtual.fone : '5561983334444';
+        const cliente = document.getElementById('cupom-entregador-nome').textContent;
+        const end = document.getElementById('cupom-entregador-end').textContent;
+        const total = document.getElementById('cupom-valor-pago').textContent;
+        const msg = encodeURIComponent(`*ORDEM DE ENTREGA - SMART GW*\nEntregador: ${entregadorDespachadoAtual ? entregadorDespachadoAtual.nomeGuerra : 'Marcos'}\nCliente: ${cliente}\nEndereço: ${end}\nValor a Cobrar: ${total}\nFavor confirmar no retorno.`);
+        window.open(`https://wa.me/${foneEntregador}?text=${msg}`, '_blank');
+      }
+    }
+
+    function baixarPDFCupom() { window.print(); }
+    function fecharCupom() { document.getElementById('modal-cupom').classList.add('hidden'); limparPedido(); }
+
+    // ============================================================
+    // MODAL DE FATURAMENTO COM FILTROS DE DIA, MÊS E ANO
+    // ============================================================
+    function abrirRelatorioFaturamento() {
+      document.getElementById('modal-faturamento').classList.remove('hidden');
+      aplicarFiltrosFaturamento();
+    }
+
+    function aplicarFiltrosFaturamento() {
+      const periodo = document.getElementById('filtro-faturamento-periodo').value;
+      const pagto = document.getElementById('filtro-faturamento-pagamento').value;
+      const atendente = document.getElementById('filtro-faturamento-atendente').value;
+
+      let baseTotal = 2450.00;
+      let dinheiro = 450.00;
+      let pix = 980.00;
+      let debito = 420.00;
+      let credito = 488.00;
+      let vales = 112.00;
+      let lucro = 770.00;
+
+      if (periodo === 'MES') {
+        baseTotal *= 22; dinheiro *= 22; pix *= 22; debito *= 22; credito *= 22; vales *= 22; lucro *= 22;
+      } else if (periodo === 'ANO') {
+        baseTotal *= 260; dinheiro *= 260; pix *= 260; debito *= 260; credito *= 260; vales *= 260; lucro *= 260;
+      }
+
+      if (pagto === 'DINHEIRO') baseTotal = dinheiro;
+      else if (pagto === 'PIX') baseTotal = pix;
+      else if (pagto === 'DEBITO') baseTotal = debito;
+      else if (pagto === 'CREDITO') baseTotal = credito;
+
+      document.getElementById('lbl-faturamento-filtrado-total').textContent = `R$ ${baseTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-dinheiro').textContent = `R$ ${dinheiro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-pix').textContent = `R$ ${pix.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-debito').textContent = `R$ ${debito.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-credito').textContent = `R$ ${credito.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('faturamento-val-vales').textContent = `R$ ${vales.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('lbl-faturamento-lucro-real').textContent = `R$ ${lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    }
+
+    // ==========================================
+    // HELPERS E INICIALIZAÇÃO
+    // ==========================================
+    function fecharModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function obterOperadorAtual() { return colaboradores.find(c => c.id === operadorAtualId) || colaboradores[0]; }
+    function abrirModalCliente() { document.getElementById('modal-cliente').classList.remove('hidden'); }
+    function salvarCliente() { fecharModal('modal-cliente'); alert('Cliente gravado com sucesso!'); }
+    function abrirModalDespesa() { alert('Lançamento de Despesa'); }
+    function abrirModalEmpresa() { alert('Configuração dos dados da empresa'); }
+    function abrirModalMeuPerfil() { alert('Perfil do operador'); }
+    function gerenciarStatusCaixa() { document.getElementById('modal-fechar-caixa').classList.remove('hidden'); }
+    function abrirModalSangriaRapida() { document.getElementById('modal-sangria-rapida').classList.remove('hidden'); }
+    function confirmarSangriaRapida() { fecharModal('modal-sangria-rapida'); alert('Sangria realizada!'); }
+
+    function abrirRelatorioPedidos() {
+      const container = document.getElementById('lista-pedidos-concluidos');
+      container.innerHTML = pedidosHoje.map(p => `
+        <div class="bg-[#0b1322] border border-slate-800/80 p-3.5 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <strong class="text-white font-mono">${p.num}</strong>
+              <span class="text-[10px] text-slate-500 font-mono">${p.hora}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">${p.pag}</span>
+            </div>
+            <p class="text-slate-400 text-xs mt-0.5">${p.itens} • ${p.cliente}</p>
+            <span class="text-[11px] text-blue-400 font-bold block mt-0.5">Atendente: ${p.atendente}</span>
+          </div>
+          <strong class="text-emerald-400 font-mono text-base">R$ ${p.valor.toFixed(2).replace('.', ',')}</strong>
+        </div>
+      `).join('');
+      document.getElementById('modal-pedidos').classList.remove('hidden');
+    }
+
+    function setDestino(tipo) {
+      destinoAtual = tipo;
+      const btnBalcao = document.getElementById('btn-destino-balcao');
+      const btnEntrega = document.getElementById('btn-destino-entrega');
+
+      if (tipo === 'BALCAO') {
+        btnBalcao.className = 'px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition bg-blue-600 text-white shadow flex items-center gap-1.5';
+        btnEntrega.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5';
+      } else {
+        btnEntrega.className = 'px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition bg-blue-600 text-white shadow flex items-center gap-1.5';
+        btnBalcao.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5';
+      }
+      recalcularTotais();
+    }
+
+    function renderizarBotoesPagamentoPDV() {
+      const container = document.getElementById('grid-formas-pagamento-pdv');
+      container.innerHTML = formasPagamento.map(f => `
+        <button onclick="selecionarPagamento('${f.id}')" class="p-2 rounded-xl border ${f.id === formaPagamentoAtual ? 'border-blue-600 bg-blue-600 text-white shadow' : 'border-slate-800 bg-[#0b1322] text-slate-300'} flex flex-col items-center justify-center transition">
+          <i class="${f.icone} text-xs mb-0.5"></i>
+          <span class="text-[10px] font-bold">${f.nome}</span>
+        </button>
+      `).join('');
+    }
+
+    function selecionarPagamento(forma) {
+      formaPagamentoAtual = forma;
+      renderizarBotoesPagamentoPDV();
+      recalcularTotais();
+    }
+
+    function adicionarItem(idProd) {
+      const p = produtos.find(item => item.id === idProd);
+      let precoVenda = (destinoAtual === 'ENTREGA' && configCaixa.modoFrete === 'EMBUTIDO') ? p.precoEntrega : p.precoBalcao;
+      const existente = carrinho.find(i => i.id === p.id);
+      if (existente) existente.qtd += 1;
+      else carrinho.push({ ...p, preco: precoVenda, qtd: 1, tipoTroca: 'COM_TROCA' });
+      renderizarCarrinho();
+    }
+
+    function alterarQtd(idProd, delta) {
+      const item = carrinho.find(i => i.id === idProd);
+      if (!item) return;
+      item.qtd += delta;
+      if (item.qtd <= 0) carrinho = carrinho.filter(i => i.id !== idProd);
+      renderizarCarrinho();
+    }
+
+    function limparPedido() { carrinho = []; renderizarCarrinho(); }
+
+    function renderizarCarrinho() {
+      const container = document.getElementById('container-itens-carrinho');
+      if (carrinho.length === 0) {
+        container.innerHTML = `<div id="carrinho-vazio" class="h-36 flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-basket-shopping text-3xl mb-1.5 opacity-30"></i><span class="text-xs font-bold text-slate-400">Nenhum produto adicionado.</span></div>`;
+        recalcularTotais();
+        return;
+      }
+      container.innerHTML = carrinho.map(item => `
+        <div class="bg-[#0b1322] border border-slate-800/80 rounded-xl p-2.5 flex items-center justify-between">
+          <div><strong class="text-xs text-white block">${item.nome}</strong><span class="text-[10px] font-mono text-slate-400">R$ ${item.preco.toFixed(2)} un</span></div>
+          <div class="flex items-center gap-1">
+            <button onclick="alterarQtd('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-800 text-white font-bold text-xs flex items-center justify-center">-</button>
+            <span class="text-xs font-mono font-bold w-4 text-center">${item.qtd}</span>
+            <button onclick="alterarQtd('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-800 text-white font-bold text-xs flex items-center justify-center">+</button>
+          </div>
+        </div>
+      `).join('');
+      recalcularTotais();
+    }
+
+    function recalcularTotais() {
+      const subtotal = carrinho.reduce((acc, i) => acc + (i.preco * i.qtd), 0);
+      const cmvTotal = carrinho.reduce((acc, i) => acc + (i.custo * i.qtd), 0);
+      const taxaRetida = subtotal * (formasPagamento.find(f => f.id === formaPagamentoAtual)?.taxa || 0);
+      const lucro = subtotal > 0 ? (subtotal - cmvTotal - taxaRetida) : 0;
+
+      document.getElementById('lbl-subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('lbl-total-cobrar').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('lbl-taxa-retida').textContent = `R$ ${taxaRetida.toFixed(2).replace('.', ',')}`;
+      document.getElementById('lbl-cmv-retido').textContent = `R$ ${cmvTotal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('lbl-lucro-real').textContent = `R$ ${lucro.toFixed(2).replace('.', ',')}`;
+      calcularTroco();
+    }
+
+    function calcularTroco() {
+      const subtotal = carrinho.reduce((acc, i) => acc + (i.preco * i.qtd), 0);
+      const recebido = parseFloat(document.getElementById('input-recebido').value) || 0;
+      document.getElementById('lbl-troco').textContent = `R$ ${Math.max(0, recebido - subtotal).toFixed(2).replace('.', ',')}`;
+    }
+
+    // Inicialização
+    renderizarBotoesPagamentoPDV();
+    renderizarCarrinho();
+  </script>
 </body>
 </html>
