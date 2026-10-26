@@ -2,8 +2,11 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart GW - Gestão Integrada de Gás, Água e Gelo</title>
+  <meta name="description" content="SaaS Cloud Multitenant completo para revendas de GLP, água mineral e gelo com controle de 5 gavetas de vasilhames, PDV com lucro líquido real e acerto de rotas.">
+  <meta property="og:title" content="Smart GW - Gestão Integrada de Gás, Água e Gelo">
+  <meta property="og:description" content="SaaS Cloud Multitenant completo para revendas de GLP, água mineral e gelo com controle de 5 gavetas de vasilhames, PDV com lucro líquido real e acerto de rotas.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,60 +27,62 @@
   </script>
 
   <style>
-    /* ESCALA DESKTOP NATIVA EM 110% (RESTAURADA) */
-    @media (min-width: 1025px) {
-      html {
-        font-size: 17.6px;
-        zoom: 1.1;
-      }
+    /* ESCALA NATIVA DESKTOP EM 110% (ORIGINAL INTACTA) */
+    html {
+      font-size: 17.6px;
+      zoom: 1.1;
     }
 
-    /* ESCALA MOBILE REAL: DESATIVA ZOOM ARTIFICIAL E TRANSFORMA EM APP */
-    @media (max-width: 1024px) {
+    /* ISOLAMENTO EXCLUSIVO PARA TELEMÓVEIS: NÃO ALTERA NADA NO COMPUTADOR */
+    @media (max-width: 768px) {
       html {
-        font-size: 14.5px !important;
+        font-size: 14px !important;
         zoom: 1 !important;
-      }
-      body {
-        padding-bottom: 74px;
       }
     }
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      -webkit-tap-highlight-color: transparent;
     }
-
     @media print {
       body * { visibility: hidden !important; }
       #printable-receipt-card, #printable-receipt-card * { visibility: visible !important; }
       #printable-receipt-card { 
-        position: absolute; left: 0; top: 0; width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important;
+        position: absolute; 
+        left: 0; 
+        top: 0; 
+        width: 100% !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        border: none !important;
       }
     }
-    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 9999px; }
   </style>
 </head>
 <body class="bg-[#0b1322] text-slate-100 flex flex-col min-h-screen overflow-x-hidden selection:bg-blue-600 selection:text-white">
 
-  <!-- ========================================== -->
-  <!-- 0. TELA DE LOGIN UNIFICADA                 -->
-  <!-- ========================================== -->
-  <div id="overlay-login" class="fixed inset-0 z-[100] bg-[#070d1e]/95 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+  <!-- ============================================================ -->
+  <!-- 0. TELA DE LOGIN INICIAL (OVERLAY FULLSCREEN #070d1e)         -->
+  <!-- ============================================================ -->
+  <div id="overlay-login" class="fixed inset-0 z-[100] bg-[#070d1e] flex items-center justify-center p-4 overflow-y-auto">
     <div class="max-w-md w-full bg-[#101827] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative my-auto">
+      
+      <!-- Topo com Logo e Identidade Visual -->
       <div class="text-center mb-6">
-        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-2xl shadow-xl shadow-orange-500/20 border border-orange-400/40">
+        <div class="w-16 h-16 mx-auto mb-3.5 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-2xl shadow-xl shadow-orange-500/20 border border-orange-400/40">
           GW
         </div>
         <h2 class="text-2xl font-black text-white tracking-tight">Smart GW</h2>
-        <p class="text-xs text-slate-400 mt-1">Gestão Integrada de Gás GLP, Água Mineral & Gelo</p>
+        <p class="text-xs text-slate-400 mt-1">SaaS de Gestão Integrada de Gás GLP, Água Mineral & Gelo</p>
         <div class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-[11px] font-bold text-blue-400">
           <i class="fa-solid fa-shield-halved text-[10px]"></i> Acesso Seguro Multitenant Cloud
         </div>
       </div>
 
+      <!-- Formulário de Login -->
       <form onsubmit="realizarLogin(event)" class="space-y-4">
         <div>
           <label class="block text-slate-300 text-xs font-bold mb-1.5">Documento (CNPJ/CPF ou E-mail)</label>
@@ -85,7 +90,7 @@
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 text-xs">
               <i class="fa-solid fa-id-card"></i>
             </span>
-            <input type="text" id="login-documento" placeholder="000.000.000-00 ou seu e-mail" required class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-3 text-white text-xs font-medium placeholder-slate-500 outline-none focus:border-blue-500">
+            <input type="text" id="login-documento" placeholder="000.000.000-00 ou seu e-mail" required class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-3 text-white text-xs font-medium placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
           </div>
         </div>
 
@@ -98,45 +103,77 @@
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 text-xs">
               <i class="fa-solid fa-lock"></i>
             </span>
-            <input type="password" id="login-senha" placeholder="Digite sua senha" required class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl pl-10 pr-10 py-3 text-white text-xs font-medium placeholder-slate-500 outline-none focus:border-blue-500">
+            <input type="password" id="login-senha" placeholder="Digite sua senha" required class="w-full bg-[#0b1322] border border-slate-700/80 rounded-xl pl-10 pr-10 py-3 text-white text-xs font-medium placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+            <button type="button" onclick="toggleVisibilidadeSenhaLogin()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 text-xs">
+              <i class="fa-solid fa-eye" id="icone-olho-login"></i>
+            </button>
           </div>
         </div>
 
+        <!-- Alerta de Erro de Login -->
+        <div id="login-erro" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-medium flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation shrink-0"></i>
+          <span id="login-erro-texto">Credencial inválida. Verifique o documento e senha digitados.</span>
+        </div>
+
+        <!-- Botão Principal de Login -->
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl text-xs transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
           <i class="fa-solid fa-right-to-bracket"></i> Acessar Minha Revenda
         </button>
       </form>
 
-      <div class="relative my-4">
+      <!-- Divisor -->
+      <div class="relative my-5">
         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
         <div class="relative flex justify-center text-[10px] uppercase font-bold text-slate-500 bg-[#101827] px-2">ou teste sem compromisso</div>
       </div>
 
-      <button onclick="entrarModoShowroom()" type="button" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-3 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2 border border-emerald-400/30">
-        <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
-        <span>Modo Demonstração Comercial</span>
+      <!-- MODO DEMONSTRAÇÃO INFINITA -->
+      <button onclick="entrarModoShowroom()" type="button" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 border border-emerald-400/30 group">
+        <i class="fa-solid fa-wand-magic-sparkles text-amber-300 group-hover:scale-110 transition"></i>
+        <span>Modo Demonstração / Apresentação Comercial</span>
       </button>
+
+      <!-- Rodapé com Dicas de Acesso -->
+      <div class="mt-5 pt-4 border-t border-slate-800/80 text-center space-y-1">
+        <p class="text-[11px] text-slate-400">
+          <strong class="text-amber-400">Acesso Mestre:</strong> <span class="font-mono text-slate-300">vozdoton@gmail.com</span> | Senha: <span class="font-mono text-slate-300">admin123</span>
+        </p>
+      </div>
+
     </div>
   </div>
 
-  <!-- CABEÇALHO GLOBAL -->
+  <!-- TARJA DE ESPELHAMENTO DE REVENDA -->
+  <div id="tarja-espelhamento" class="hidden bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white text-xs px-4 py-2 flex items-center justify-between font-bold shadow-lg z-40 border-b border-amber-500/50 shrink-0">
+    <div class="flex items-center gap-2">
+      <span class="animate-pulse flex h-2 w-2 rounded-full bg-white"></span>
+      <span>Você está espelhando a visão da revenda: <strong id="lbl-tarja-nome-revenda" class="underline tracking-wide">Ultragaz Planaltina</strong></span>
+    </div>
+    <button onclick="voltarParaMinhaRevenda()" class="bg-black/30 hover:bg-black/50 text-white border border-white/30 px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 shadow">
+      <i class="fa-solid fa-arrow-left"></i> Voltar à Minha Revenda
+    </button>
+  </div>
+
+  <!-- CABEÇALHO GLOBAL FIXO -->
   <header class="sticky top-0 bg-[#0f172a] border-b border-slate-800/80 px-4 md:px-6 py-2.5 flex items-center justify-between shadow-md shrink-0 z-30">
-    <div onclick="abrirModalEmpresa()" class="flex items-center gap-3 cursor-pointer hover:opacity-85 transition group" title="Clique para editar dados da empresa">
-      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-xl shadow-lg shrink-0 overflow-hidden border border-orange-400/30" id="header-logo-box">
+    
+    <div onclick="abrirModalEmpresa()" class="flex items-center gap-3 cursor-pointer hover:opacity-85 transition group" title="Clique para editar os dados da empresa">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center font-black text-xl shadow-lg shrink-0 overflow-hidden group-hover:scale-105 transition border border-orange-400/30" id="header-logo-box">
         <img id="header-logo-img" src="" class="w-full h-full object-cover hidden">
         <span id="header-logo-text">GW</span>
       </div>
       <div>
         <div class="flex items-center gap-1.5">
-          <h1 class="font-black text-sm md:text-base tracking-tight text-white group-hover:text-blue-400 leading-tight" id="header-empresa-nome">Smart GW</h1>
-          <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-500 hidden sm:inline"></i>
+          <h1 class="font-black text-sm md:text-base tracking-tight text-white group-hover:text-blue-400 transition leading-tight" id="header-empresa-nome">Smart GW</h1>
+          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 group-hover:text-blue-400 transition"></i>
         </div>
         <p class="text-[10px] md:text-[11px] text-slate-400 font-mono" id="header-empresa-cnpj">CNPJ: 12.345.678/0001-90</p>
       </div>
     </div>
 
-    <!-- Navegação Desktop -->
-    <nav class="hidden lg:flex items-center gap-1.5 bg-[#131d31] border border-slate-800/90 p-1.5 rounded-2xl">
+    <!-- Navegação de Abas Desktop -->
+    <nav class="hidden xl:flex items-center gap-1.5 bg-[#131d31] border border-slate-800/90 p-1.5 rounded-2xl">
       <button onclick="setTab('dashboard')" id="btn-tab-dashboard" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition bg-blue-600 text-white shadow flex items-center gap-2 whitespace-nowrap">
         <i class="fa-solid fa-chart-line text-sm text-white"></i> Início
       </button>
@@ -155,16 +192,23 @@
       <button onclick="setTab('configuracoes')" id="btn-tab-configuracoes" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 whitespace-nowrap">
         <i class="fa-solid fa-gear text-sm text-amber-400"></i> Configurações
       </button>
-      <button onclick="abrirPainelRevendas()" id="btn-tab-revendas-admin" class="tab-btn h-10 px-3.5 rounded-xl text-xs font-black transition bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 flex items-center gap-1.5 whitespace-nowrap shadow">
-        <i class="fa-solid fa-building-circle-check"></i> Revendas
-      </button>
     </nav>
 
-    <!-- Operador & Ações -->
+    <!-- Área de Controle Master & Operador Atual -->
     <div class="flex items-center gap-2.5">
-      <div onclick="abrirModalMeuPerfil()" class="text-right border-l border-slate-800 pl-3 md:pl-4 cursor-pointer hover:opacity-80 transition flex items-center gap-2.5 shrink-0" title="Meu Perfil">
+      <button id="btn-painel-revendas" onclick="abrirPainelRevendas()" class="hidden bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-orange-500/20 transition border border-amber-300/40 shrink-0">
+        <i class="fa-solid fa-building-circle-check text-slate-950 text-sm"></i>
+        <span class="hidden md:inline">Painel de Revendas</span>
+      </button>
+
+      <button onclick="fazerLogout()" class="text-slate-400 hover:text-rose-400 text-xs font-bold p-2 rounded-xl hover:bg-slate-800/60 transition flex items-center gap-1.5 shrink-0" title="Encerrar sessão">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span class="hidden lg:inline text-[11px]">Sair</span>
+      </button>
+
+      <div onclick="abrirModalMeuPerfil()" class="text-right border-l border-slate-800 pl-3 md:pl-4 cursor-pointer hover:opacity-80 transition group flex items-center gap-2.5 shrink-0" title="Meu Perfil">
         <div class="hidden sm:block">
-          <span class="text-[10px] font-black uppercase text-slate-400 block tracking-wider" id="header-cargo-label">Proprietário</span>
+          <span class="text-[10px] font-black uppercase text-slate-400 block tracking-wider group-hover:text-blue-400 transition" id="header-cargo-label">Proprietário</span>
           <span class="text-xs font-black text-emerald-400 font-mono" id="header-operador-nome">Wellington Gontijo</span>
         </div>
         <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xs font-black overflow-hidden" id="header-avatar-box">
@@ -172,16 +216,23 @@
           <i id="header-avatar-icon" class="fa-solid fa-user"></i>
         </div>
       </div>
-      <button onclick="fazerLogout()" class="text-slate-400 hover:text-rose-400 p-2 rounded-xl hover:bg-slate-800/60 transition" title="Sair">
-        <i class="fa-solid fa-right-from-bracket text-xs"></i>
-      </button>
     </div>
   </header>
 
-  <!-- CONTEÚDO PRINCIPAL (DENSIDADE TOTAL DESKTOP) -->
+  <!-- NAVEGAÇÃO MOBILE -->
+  <div class="xl:hidden bg-[#0f172a] border-b border-slate-800 p-2 flex shrink-0 overflow-x-auto gap-2 custom-scroll items-center">
+    <button onclick="setTab('dashboard')" id="btn-tab-dashboard-m" class="tab-btn-m px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-blue-600 shadow flex items-center gap-1.5 shrink-0 whitespace-nowrap"><i class="fa-solid fa-chart-line text-white"></i> Início</button>
+    <button onclick="setTab('pdv')" id="btn-tab-pdv-m" class="tab-btn-m px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0 whitespace-nowrap"><i class="fa-solid fa-cash-register text-blue-400"></i> Caixa</button>
+    <button onclick="setTab('whatsapp')" id="btn-tab-whatsapp-m" class="tab-btn-m px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0 whitespace-nowrap"><i class="fa-brands fa-whatsapp text-emerald-400"></i> WhatsApp</button>
+    <button onclick="setTab('clientes')" id="btn-tab-clientes-m" class="tab-btn-m px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0 whitespace-nowrap"><i class="fa-solid fa-users text-emerald-400"></i> Clientes</button>
+    <button onclick="setTab('vasilhames')" id="btn-tab-vasilhames-m" class="tab-btn-m px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0 whitespace-nowrap"><i class="fa-solid fa-boxes-stacked text-orange-400"></i> Estoque</button>
+    <button onclick="setTab('configuracoes')" id="btn-tab-configuracoes-m" class="tab-btn-m px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 flex items-center gap-1.5 shrink-0 whitespace-nowrap"><i class="fa-solid fa-gear text-amber-400"></i> Config</button>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
   <main class="flex-1 p-5 md:p-8 custom-scroll flex flex-col justify-start">
 
-    <!-- 1. DASHBOARD -->
+    <!-- 1. INÍCIO (DASHBOARD) -->
     <div id="view-dashboard" class="view-panel space-y-6 max-w-7xl w-full mx-auto">
       <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
@@ -192,16 +243,19 @@
           <h2 class="text-3xl font-black text-white tracking-tight">Painel Principal</h2>
           <p class="text-slate-400 text-sm mt-1">Acompanhe as métricas financeiras consolidadas e o fluxo de entregas do dia.</p>
         </div>
-        <button onclick="setTab('pdv')" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-2xl font-black text-sm shadow-lg shadow-blue-600/30 flex items-center gap-2 transition hover:scale-105 active:scale-95">
+        <button onclick="setTab('pdv')" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-2xl font-black text-sm shadow-lg shadow-blue-600/30 flex items-center gap-2 transition hover:scale-105">
           <i class="fa-solid fa-plus-circle text-base"></i> Abrir Caixa PDV
         </button>
       </div>
 
+      <!-- Grade dos 6 Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
         <div onclick="abrirRelatorioFaturamento()" class="bg-[#131d31] border border-slate-800 hover:border-emerald-500/60 p-5 md:p-6 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-40 group">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider block">Faturamento Hoje</span>
-            <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base"><i class="fa-solid fa-chart-pie"></i></div>
+            <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">
+              <i class="fa-solid fa-chart-pie"></i>
+            </div>
           </div>
           <div>
             <div class="text-3xl font-black text-emerald-400 font-mono tracking-tight" id="dash-faturamento-total">R$ 2.450,00</div>
@@ -212,7 +266,9 @@
         <div onclick="abrirRelatorioPedidos()" class="bg-[#131d31] border border-slate-800 hover:border-blue-500/60 p-5 md:p-6 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-40 group">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider block">Total de Vendas</span>
-            <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-base"><i class="fa-solid fa-receipt"></i></div>
+            <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-base">
+              <i class="fa-solid fa-receipt"></i>
+            </div>
           </div>
           <div>
             <div class="text-3xl font-black text-white font-mono tracking-tight" id="dash-vendas-qtd">17 Pedidos</div>
@@ -223,7 +279,9 @@
         <div onclick="abrirModalEntregas()" class="bg-[#131d31] border border-slate-800 hover:border-cyan-500/60 p-5 md:p-6 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-40 group">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider block">Entregas em Rota</span>
-            <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-base"><i class="fa-solid fa-motorcycle"></i></div>
+            <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-base">
+              <i class="fa-solid fa-motorcycle"></i>
+            </div>
           </div>
           <div>
             <div class="text-3xl font-black text-cyan-400 font-mono tracking-tight" id="dash-qtd-entregas">3 Entregas</div>
@@ -234,7 +292,9 @@
         <div onclick="abrirModalDespesa()" class="bg-[#131d31] border border-slate-800 hover:border-rose-500/60 p-5 md:p-6 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-40 group">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider block">Despesas & Sangrias</span>
-            <div class="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-base"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+            <div class="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-base">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
           </div>
           <div>
             <div class="text-2xl font-black text-white tracking-tight">Cadastrar Despesa</div>
@@ -245,7 +305,9 @@
         <div onclick="setTab('vasilhames')" class="bg-[#131d31] border border-slate-800 hover:border-orange-500/60 p-5 md:p-6 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-40 group">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider block">Patrimônio de Cascos</span>
-            <div class="w-10 h-10 rounded-2xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-base"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div class="w-10 h-10 rounded-2xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-base">
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
           </div>
           <div>
             <div class="text-2xl font-black text-white tracking-tight">Ver o Estoque</div>
@@ -256,7 +318,9 @@
         <div onclick="abrirModalCliente()" class="bg-[#131d31] border border-slate-800 hover:border-emerald-500/60 p-5 md:p-6 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-40 group">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider block">Gestão de Carteira</span>
-            <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base"><i class="fa-solid fa-user-plus"></i></div>
+            <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-base">
+              <i class="fa-solid fa-user-plus"></i>
+            </div>
           </div>
           <div>
             <div class="text-2xl font-black text-white tracking-tight">Cadastrar Clientes</div>
@@ -266,15 +330,13 @@
       </div>
     </div>
 
-    <!-- 2. CAIXA PDV (ORIGINAL ROBUSTO) -->
+    <!-- 2. CAIXA PDV -->
     <div id="view-pdv" class="view-panel hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-start max-w-7xl w-full mx-auto">
-      
-      <!-- Lado Esquerdo -->
       <div class="lg:col-span-7 space-y-4">
         
         <div class="bg-[#131d31] border border-slate-800/80 rounded-2xl p-3.5 shadow-sm flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-black uppercase tracking-wider text-slate-400">Tipo de Saída:</span>
+            <span class="text-xs font-black uppercase tracking-wider text-slate-400" id="lbl-tipo-saida-pdv">Tipo de Saída:</span>
             <div class="flex gap-1.5">
               <button onclick="setDestino('BALCAO')" id="btn-destino-balcao" class="px-4 py-2 rounded-xl text-xs font-extrabold transition bg-blue-600 text-white shadow flex items-center gap-1.5">
                 <i class="fa-solid fa-store"></i> <span id="txt-btn-balcao">Balcão (Portaria)</span>
@@ -287,20 +349,22 @@
 
           <div class="flex items-center gap-2">
             <button onclick="abrirModalSangriaRapida()" class="bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/50 px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow">
-              <i class="fa-solid fa-hand-holding-dollar"></i> Sangria
+              <i class="fa-solid fa-hand-holding-dollar text-xs"></i> 💸 Sangria
             </button>
             <button onclick="gerenciarStatusCaixa()" id="btn-status-caixa-pdv" class="bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-800/50 px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow">
-              <i class="fa-solid fa-lock"></i> Fechar Caixa
+              <i class="fa-solid fa-lock text-xs"></i> 🔒 Fechar Caixa
             </button>
           </div>
         </div>
 
-        <!-- Grade de Produtos Clássica com Clique Rápido -->
+        <!-- Grade de Produtos -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div onclick="adicionarItem('P13')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group active:scale-98">
+          <div onclick="adicionarItem('P13')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group">
             <div>
               <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center text-xl"><i class="fa-solid fa-fire"></i></div>
+                <div class="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-fire"></i>
+                </div>
                 <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg">Retornável</span>
               </div>
               <h3 class="font-extrabold text-white text-base leading-snug">Botijão GLP 13kg</h3>
@@ -315,10 +379,12 @@
             </div>
           </div>
 
-          <div onclick="adicionarItem('G20L')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group active:scale-98">
+          <div onclick="adicionarItem('G20L')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group">
             <div>
               <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl"><i class="fa-solid fa-bottle-water"></i></div>
+                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-bottle-water"></i>
+                </div>
                 <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg">Retornável</span>
               </div>
               <h3 class="font-extrabold text-white text-base leading-snug">Galão Água 20L</h3>
@@ -333,10 +399,12 @@
             </div>
           </div>
 
-          <div onclick="adicionarItem('GELO5')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group active:scale-98">
+          <div onclick="adicionarItem('GELO5')" class="bg-[#131d31] border border-slate-800/80 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between cursor-pointer transition shadow hover:shadow-lg group">
             <div>
               <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl"><i class="fa-solid fa-snowflake"></i></div>
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-snowflake"></i>
+                </div>
                 <span class="text-[11px] font-bold text-slate-400 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-lg">Descartável</span>
               </div>
               <h3 class="font-extrabold text-white text-base leading-snug">Gelo em Cubos 5kg</h3>
@@ -379,7 +447,6 @@
           </div>
         </div>
 
-        <!-- Margem Real e CMV -->
         <div class="bg-[#131d31] border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
@@ -399,14 +466,8 @@
         </div>
       </div>
 
-      <!-- Lado Direito: Comanda e Fechamento -->
-      <div id="pdv-drawer-carrinho" class="lg:col-span-5 fixed lg:static inset-x-0 bottom-0 z-40 bg-[#131d31] border-t lg:border border-slate-800 rounded-t-3xl lg:rounded-2xl shadow-xl p-4 lg:p-0 flex flex-col justify-between max-h-[85vh] lg:max-h-none overflow-hidden transition-all duration-300 translate-y-full lg:translate-y-0">
-        
-        <div class="lg:hidden flex justify-between items-center pb-2 border-b border-slate-800 mb-2">
-          <span class="font-black text-sm text-white">Fechar Pedido</span>
-          <button onclick="toggleCarrinhoMobile()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-bold">✕</button>
-        </div>
-
+      <!-- Lado Direito: Comanda PDV -->
+      <div class="lg:col-span-5 bg-[#131d31] border border-slate-800/80 rounded-2xl shadow-xl flex flex-col justify-between overflow-hidden">
         <div>
           <div class="p-3.5 border-b border-slate-800 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-2 text-sm font-black text-white">
@@ -417,7 +478,12 @@
             </button>
           </div>
 
-          <div class="p-3 max-h-[190px] overflow-y-auto space-y-2 custom-scroll" id="container-itens-carrinho"></div>
+          <div class="p-3 max-h-[190px] overflow-y-auto space-y-2 custom-scroll" id="container-itens-carrinho">
+            <div id="carrinho-vazio" class="h-28 flex flex-col items-center justify-center text-slate-500">
+              <i class="fa-solid fa-basket-shopping text-2xl mb-1 opacity-30"></i>
+              <span class="text-[11px] font-bold text-slate-400">Nenhum produto adicionado.</span>
+            </div>
+          </div>
         </div>
 
         <div class="p-4 border-t border-slate-800 space-y-3 bg-[#101827] shrink-0">
@@ -452,65 +518,60 @@
             </div>
           </div>
 
-          <button onclick="cliqueConcluirVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm py-3.5 rounded-xl uppercase tracking-wider transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 active:scale-95">
+          <button onclick="cliqueConcluirVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm py-3.5 rounded-xl uppercase tracking-wider transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
             <i class="fa-solid fa-circle-check text-base"></i> CONCLUIR VENDA & EMITIR CUPOM
           </button>
         </div>
       </div>
-
-      <!-- Barra Flutuante Mobile -->
-      <div id="barra-flutuante-carrinho" onclick="toggleCarrinhoMobile()" class="lg:hidden fixed bottom-[78px] inset-x-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-2xl shadow-2xl flex items-center justify-between z-30 cursor-pointer active:scale-98 transition">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-sm font-black"><i class="fa-solid fa-cart-shopping"></i></div>
-          <div>
-            <span class="text-xs font-black block" id="txt-carrinho-flutuante-itens">0 Itens adicionados</span>
-            <span class="text-[10px] text-blue-200">Toque para pagar e emitir cupom</span>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="text-base font-black font-mono" id="txt-carrinho-flutuante-total">R$ 0,00</span>
-        </div>
-      </div>
-
     </div>
 
     <!-- 3. WHATSAPP CRM -->
     <div id="view-whatsapp" class="view-panel hidden max-w-7xl w-full mx-auto">
-      <div class="bg-[#131d31] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-12 min-h-[620px]">
-        <div id="coluna-conversas-whats" class="md:col-span-4 border-r border-slate-800 flex flex-col justify-between bg-[#0f172a]/60">
+      <div class="bg-[#131d31] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-12 min-h-[660px]">
+        
+        <div class="md:col-span-4 border-r border-slate-800 flex flex-col justify-between bg-[#0f172a]/60">
           <div>
             <div class="p-4 border-b border-slate-800 flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg"><i class="fa-brands fa-whatsapp"></i></div>
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </div>
                 <div>
                   <h3 class="font-extrabold text-sm text-white">WhatsApp CRM</h3>
-                  <div class="flex items-center gap-1 text-[10px] text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Oficial Conectada</div>
+                  <div class="flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>API Oficial Conectada</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="divide-y divide-slate-800/60 overflow-y-auto max-h-[480px] custom-scroll">
-              <div onclick="abrirConversaNoMobile('mayce')" class="p-3.5 bg-blue-900/20 border-l-4 border-emerald-400 cursor-pointer">
-                <div class="flex justify-between items-center"><strong class="text-xs text-white">MAYCE SILVA FERREIRA</strong><span class="text-[10px] text-slate-400">14:32</span></div>
-                <span class="text-[11px] text-emerald-400 truncate block mt-0.5">1x GLP 13kg • Solicitação Pix</span>
+
+            <div class="divide-y divide-slate-800/60 overflow-y-auto max-h-[500px] custom-scroll">
+              <div onclick="selecionarConversaWhats('mayce')" id="item-whats-mayce" class="p-3.5 bg-blue-900/20 border-l-4 border-emerald-400 cursor-pointer hover:bg-slate-800/40 transition">
+                <div class="flex items-center justify-between">
+                  <strong class="text-xs text-white block">MAYCE SILVA FERREIRA</strong>
+                  <span class="text-[10px] text-slate-400 font-mono">14:32</span>
+                </div>
+                <span class="text-[11px] text-emerald-400 truncate block font-medium mt-0.5">1x GLP 13kg • Solicitação Pix</span>
               </div>
-              <div onclick="abrirConversaNoMobile('fogao')" class="p-3.5 cursor-pointer hover:bg-slate-800/40">
-                <div class="flex justify-between items-center"><strong class="text-xs text-white">Restaurante Fogão Nobre</strong><span class="text-[10px] text-slate-500">14:02</span></div>
+              <div onclick="selecionarConversaWhats('fogao')" id="item-whats-fogao" class="p-3.5 cursor-pointer hover:bg-slate-800/40 transition border-l-4 border-transparent">
+                <div class="flex items-center justify-between">
+                  <strong class="text-xs text-white block">Restaurante Fogão Nobre</strong>
+                  <span class="text-[10px] text-slate-500 font-mono">14:02</span>
+                </div>
                 <span class="text-[11px] text-slate-400 truncate block mt-0.5">Manda 2 P13 no débito por favor?</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div id="coluna-chat-whats" class="hidden md:flex md:col-span-8 flex-col justify-between bg-[#131d31]">
+        <div class="md:col-span-8 flex flex-col justify-between bg-[#131d31]">
           <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-[#101827]/80">
-            <div class="flex items-center gap-2">
-              <button onclick="voltarParaListaWhats()" class="md:hidden text-slate-400 hover:text-white mr-1 text-sm"><i class="fa-solid fa-arrow-left"></i></button>
-              <div>
-                <h3 class="font-black text-sm text-white" id="whats-chat-nome">MAYCE SILVA FERREIRA</h3>
-                <p class="text-xs text-slate-400" id="whats-chat-sub">(61) 98888-0000 • Rua Humberto de Campos, SN</p>
-              </div>
+            <div>
+              <h3 class="font-black text-sm text-white" id="whats-chat-nome">MAYCE SILVA FERREIRA</h3>
+              <p class="text-xs text-slate-400" id="whats-chat-sub">Telefone: <strong class="text-slate-300 font-mono">(61) 98888-0000</strong></p>
             </div>
-            <button onclick="cadastrarClienteEVenderViaWhats()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow">
+            <button onclick="cadastrarClienteEVenderViaWhats()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30">
               <i class="fa-solid fa-bolt"></i> Cadastrar & Vender no PDV
             </button>
           </div>
@@ -519,18 +580,21 @@
             <div class="bg-[#0b1322] border border-slate-700/80 p-3.5 rounded-2xl max-w-lg text-xs text-slate-100">
               Boa tarde! Gostaria de pedir uma troca de botijão de 13kg aqui na Rua Humberto de Campos, SN - Vila Muniz. Pagamento no Pix.
             </div>
-            <div class="bg-gradient-to-br from-emerald-950/40 to-[#131d31] border border-emerald-500/40 p-4 rounded-2xl shadow-xl space-y-2">
+            <div class="bg-gradient-to-br from-emerald-950/40 to-[#131d31] border border-emerald-500/40 p-4 rounded-2xl shadow-xl space-y-3">
               <span class="text-xs font-black text-emerald-400 uppercase tracking-wide block"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> IA Copilot Smart GW</span>
-              <p class="text-xs text-slate-200">Olá Mayce! Perfeito, já confirmei seu pedido de 1x Troca de Gás GLP 13kg para entrega na Rua Humberto de Campos, SN. Valor total: R$ 125,00. O entregador Marcos já foi escalado!</p>
-              <button onclick="enviarMensagemWhatsManual()" class="bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-black"><i class="fa-solid fa-paper-plane mr-1"></i> Enviar Mensagem</button>
+              <p id="whats-texto-sugestao" class="text-xs text-slate-200">
+                Olá Mayce! Perfeito, já confirmei seu pedido de 1x Troca de Gás GLP 13kg para entrega na Rua Humberto de Campos, SN. Valor total: R$ 125,00. O entregador Marcos já está escalado!
+              </p>
+              <button onclick="enviarRespostaSugeridaWhats()" class="bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-black transition"><i class="fa-solid fa-paper-plane mr-1"></i> Enviar Mensagem Agora</button>
             </div>
           </div>
 
-          <div class="p-3 md:p-4 border-t border-slate-800 bg-[#0f172a]/90 flex gap-2">
+          <div class="p-3 md:p-4 border-t border-slate-800 bg-[#0f172a]/90 flex items-center gap-2">
             <input type="text" id="whats-input-msg" placeholder="Digite uma mensagem..." class="flex-1 bg-[#0b1322] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white outline-none">
             <button onclick="enviarMensagemWhatsManual()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-black transition">Enviar</button>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -549,7 +613,14 @@
       <div class="bg-[#131d31] border border-slate-800 rounded-2xl overflow-hidden shadow">
         <table class="w-full text-left text-xs">
           <thead class="bg-[#0f172a] border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider">
-            <tr><th class="p-4">Cliente / Tipo</th><th class="p-4">Documento</th><th class="p-4">Telefone</th><th class="p-4">Endereço</th><th class="p-4">Limite de Crédito</th><th class="p-4 text-center">Ações</th></tr>
+            <tr>
+              <th class="p-4">Cliente / Tipo</th>
+              <th class="p-4">Documento (CPF/CNPJ)</th>
+              <th class="p-4">Telefone / WhatsApp</th>
+              <th class="p-4">Endereço Completo</th>
+              <th class="p-4">Limite de Crédito</th>
+              <th class="p-4 text-center">Ações</th>
+            </tr>
           </thead>
           <tbody class="divide-y divide-slate-800" id="tabela-clientes-body"></tbody>
         </table>
@@ -560,8 +631,10 @@
     <div id="view-vasilhames" class="view-panel hidden space-y-6 max-w-7xl w-full mx-auto">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#131d31] border border-slate-800 p-5 rounded-2xl shadow">
         <div>
-          <h2 class="text-xl font-black text-white flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-orange-400"></i> Controle Geral de Estoque & Pátio</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Gerencie compras de cargas de distribuidora e implante saldos iniciais.</p>
+          <h2 class="text-xl font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked text-orange-400"></i> Controle Geral de Estoque & Pátio
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Gerencie compras de cargas de distribuidora e implante saldos iniciais com justificativa.</p>
         </div>
         <div class="flex items-center gap-2 w-full sm:w-auto">
           <button onclick="abrirModalCompraEstoque()" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-black shadow"><i class="fa-solid fa-cart-flatbed mr-1"></i> + Comprar Estoque</button>
@@ -571,7 +644,9 @@
 
       <div class="bg-[#131d31] border border-slate-800 p-6 rounded-2xl space-y-4 shadow">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-black text-white flex items-center gap-2"><i class="fa-solid fa-fire text-orange-500"></i> Vasilhames GLP P13 – Total <span id="lbl-total-patrimonio-p13">127</span> un</h3>
+          <h3 class="text-lg font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-fire text-orange-500"></i> Vasilhames GLP P13 – Total <span id="lbl-total-patrimonio-p13">127</span> un
+          </h3>
           <span class="text-xs text-slate-400">Patrimônio Ativo</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
@@ -585,7 +660,9 @@
 
       <div class="bg-[#131d31] border border-slate-800 p-6 rounded-2xl space-y-4 shadow">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-black text-white flex items-center gap-2"><i class="fa-solid fa-bottle-water text-cyan-400"></i> Galões Água Mineral 20L – Total <span id="lbl-total-patrimonio-agua">80</span> un</h3>
+          <h3 class="text-lg font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-bottle-water text-cyan-400"></i> Galões Água Mineral 20L – Total <span id="lbl-total-patrimonio-agua">80</span> un
+          </h3>
           <span class="text-xs text-slate-400">Patrimônio Ativo</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
@@ -602,11 +679,11 @@
     <div id="view-configuracoes" class="view-panel hidden space-y-6 max-w-7xl w-full mx-auto">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#131d31] border border-slate-800 p-5 md:p-6 rounded-3xl shadow-xl">
         <div>
-          <div class="flex items-center gap-2 text-xs font-bold text-amber-400 mb-1"><i class="fa-solid fa-sliders"></i> Central de Gestão & Parâmetros</div>
+          <div class="flex items-center gap-2 text-xs font-bold text-amber-400 mb-1"><i class="fa-solid fa-sliders"></i> Central de Parâmetros</div>
           <h2 class="text-2xl md:text-3xl font-black text-white tracking-tight">Central de Configurações</h2>
         </div>
         <button onclick="salvarConfiguracoesGerais()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl text-xs font-black transition flex items-center gap-2 shadow">
-          <i class="fa-solid fa-floppy-disk"></i> Salvar Todas as Configurações
+          <i class="fa-solid fa-floppy-disk text-sm"></i> Salvar Todas as Configurações
         </button>
       </div>
 
@@ -619,7 +696,7 @@
         <button onclick="setSubConfig('empresa')" id="btn-subcfg-empresa" class="subcfg-btn px-4 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white shrink-0 whitespace-nowrap"><i class="fa-solid fa-building text-amber-400"></i> Dados da Empresa</button>
       </div>
 
-      <div id="subcfg-pagamento" class="subcfg-panel space-y-4">
+      <div id="subcfg-pagamento" class="subcfg-panel space-y-6">
         <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl space-y-4">
           <h3 class="font-black text-base text-white">Formas de Pagamento & Taxas de Adquirência</h3>
           <div class="overflow-x-auto">
@@ -633,10 +710,10 @@
         </div>
       </div>
 
-      <div id="subcfg-caixa_pdv" class="subcfg-panel hidden space-y-4">
-        <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+      <div id="subcfg-caixa_pdv" class="subcfg-panel hidden space-y-6">
+        <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
           <h3 class="font-black text-base text-white">Regras de Saída e Preço (Balcão vs Entrega)</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
             <div>
               <label class="block text-slate-400 font-bold mb-1">Rótulo Saída Balcão</label>
               <input type="text" id="cfg-rotulo-balcao" value="Balcão (Portaria)" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none">
@@ -649,10 +726,10 @@
         </div>
       </div>
 
-      <div id="subcfg-fiscal" class="subcfg-panel hidden space-y-4">
-        <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4 text-xs">
+      <div id="subcfg-fiscal" class="subcfg-panel hidden space-y-6">
+        <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5 text-xs">
           <h3 class="font-black text-base text-white">Módulo Fiscal (SEFAZ - NFC-e / NF-e)</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label class="block text-slate-400 font-bold mb-1">Ambiente</label>
               <select id="cfg-fiscal-ambiente" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white outline-none">
@@ -668,7 +745,7 @@
         </div>
       </div>
 
-      <div id="subcfg-produtos" class="subcfg-panel hidden space-y-4">
+      <div id="subcfg-produtos" class="subcfg-panel hidden space-y-6">
         <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="font-black text-base text-white">Catálogo de Produtos, Custos CMV e Preços</h3>
@@ -685,11 +762,11 @@
         </div>
       </div>
 
-      <div id="subcfg-equipe" class="subcfg-panel hidden space-y-4">
+      <div id="subcfg-equipe" class="subcfg-panel hidden space-y-6">
         <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl space-y-4">
           <div class="flex justify-between items-center">
-            <h3 class="font-black text-base text-white">Equipe, Cargos & Permissões</h3>
-            <button onclick="abrirModalColaborador()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-black shadow">+ Novo Colaborador</button>
+            <h3 class="font-black text-base text-white">Equipe, Cargos, PINs & Permissões</h3>
+            <button onclick="abrirModalColaborador()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow">+ Novo Colaborador</button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
@@ -702,8 +779,8 @@
         </div>
       </div>
 
-      <div id="subcfg-empresa" class="subcfg-panel hidden space-y-4">
-        <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4 text-xs">
+      <div id="subcfg-empresa" class="subcfg-panel hidden space-y-6">
+        <div class="bg-[#131d31] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5 text-xs">
           <h3 class="font-black text-base text-white">Dados Cadastrais da Empresa</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -725,95 +802,75 @@
 
   </main>
 
-  <!-- BARRA DE NAVEGAÇÃO NATIVA INFERIOR (APENAS MOBILE) -->
-  <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0f172a] border-t border-slate-800 px-3 py-2 flex items-center justify-around z-50 shadow-2xl">
-    <button onclick="setTab('dashboard')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white active:scale-95">
-      <i class="fa-solid fa-chart-line text-lg text-blue-400"></i>
-      <span class="text-[10px] font-bold">Início</span>
-    </button>
-    <button onclick="setTab('pdv')" class="flex flex-col items-center gap-1 text-blue-500 font-black active:scale-95">
-      <div class="w-11 h-11 -mt-5 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/40 border-2 border-[#0f172a]">
-        <i class="fa-solid fa-cash-register text-lg"></i>
-      </div>
-      <span class="text-[10px]">Caixa PDV</span>
-    </button>
-    <button onclick="setTab('whatsapp')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white active:scale-95">
-      <i class="fa-brands fa-whatsapp text-lg text-emerald-400"></i>
-      <span class="text-[10px] font-bold">WhatsApp</span>
-    </button>
-    <button onclick="setTab('vasilhames')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white active:scale-95">
-      <i class="fa-solid fa-boxes-stacked text-lg text-orange-400"></i>
-      <span class="text-[10px] font-bold">Estoque</span>
-    </button>
-    <button onclick="setTab('configuracoes')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white active:scale-95">
-      <i class="fa-solid fa-gear text-lg text-amber-400"></i>
-      <span class="text-[10px] font-bold">Config</span>
-    </button>
-  </div>
-
   <!-- ============================================================ -->
-  <!-- MODAIS REAIS FUNCIONAIS (SEM ALERTAS FICTÍCIOS)               -->
+  <!-- MODAIS REAIS FUNCIONAIS                                       -->
   <!-- ============================================================ -->
 
   <!-- MODAL: CUPOM NÃO FISCAL -->
-  <div id="modal-cupom" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-3 z-50">
-    <div class="bg-white rounded-2xl max-w-[600px] w-full p-5 shadow-2xl flex flex-col max-h-[92vh] text-slate-900 border border-slate-200 text-xs">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-2">
-        <h2 class="text-base font-bold text-slate-900">Cupom Não Fiscal</h2>
-        <div class="flex items-center gap-2">
-          <div class="flex rounded-lg bg-slate-100 p-0.5 border border-slate-200" id="box-seletor-vias-cupom">
-            <button onclick="alternarViaCupom('CLIENTE')" id="btn-via-cliente" class="px-3 py-1 rounded font-bold bg-[#15616d] text-white">Via Cliente</button>
-            <button onclick="alternarViaCupom('ENTREGADOR')" id="btn-via-entregador" class="px-3 py-1 rounded font-bold text-slate-600">Via Entregador</button>
+  <div id="modal-cupom" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-[640px] w-full p-6 shadow-2xl flex flex-col max-h-[94vh] text-slate-900 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3 shrink-0">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">Cupom não fiscal</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Comprovante da venda, para entregar ao cliente.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs" id="box-seletor-vias-cupom">
+            <button onclick="alternarViaCupom('CLIENTE')" id="btn-via-cliente" class="px-4 py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow">Via do cliente</button>
+            <button onclick="alternarViaCupom('ENTREGADOR')" id="btn-via-entregador" class="px-4 py-2 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition">Via do entregador</button>
           </div>
-          <button onclick="fecharCupom()" class="text-slate-400 text-xl font-bold px-1.5">✕</button>
+          <button onclick="fecharCupom()" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-1.5">✕</button>
         </div>
       </div>
-      <div class="overflow-y-auto custom-scroll p-4 bg-white border border-slate-200 rounded-xl font-mono text-[11px] space-y-1.5" id="printable-receipt-card">
-        <div class="text-center font-bold uppercase text-xs" id="cupom-empresa-nome">SMART GW DISTRIBUIDORA LTDA</div>
-        <div class="text-center text-[10px] text-slate-600">CNPJ 12.345.678/0001-90 — IE 0846086900160</div>
+
+      <div class="overflow-y-auto custom-scroll p-4 bg-white border border-slate-200 rounded-xl flex-1 font-mono text-xs space-y-1.5" id="printable-receipt-card">
+        <div class="text-center font-extrabold text-sm uppercase" id="cupom-empresa-nome">OPTIMUS PRIME PROMOCOES LTDA</div>
+        <div class="text-center text-[11px] text-slate-600" id="cupom-empresa-cnpj-ie">CNPJ 64.439.117/0001-59 — IE 0846086900160</div>
         <div class="border-b border-dashed border-slate-400 my-1"></div>
-        <div id="bloco-via-entregador" class="hidden space-y-0.5 border-b border-dashed border-slate-400 pb-1">
-          <div class="font-black text-center text-xs">VIA DO ENTREGADOR</div>
-          <div><strong>Cliente:</strong> <span id="cupom-entregador-nome">MAYCE SILVA FERREIRA</span></div>
-          <div><strong>Endereço:</strong> <span id="cupom-entregador-end">Rua Humberto de Campos, SN</span></div>
+        <div id="bloco-via-entregador" class="hidden space-y-0.5 text-xs py-1 border-b border-dashed border-slate-400 mb-1">
+          <div class="font-black text-center text-xs uppercase tracking-wider mb-1">VIA DO ENTREGADOR</div>
+          <div><strong>Cliente:</strong> <span id="cupom-entregador-nome" class="font-bold">LORRANE DA COSTA TAVARES</span></div>
+          <div><strong>Endereço:</strong> <span id="cupom-entregador-end">Quadra QR 204 Conjunto 1, 3</span></div>
           <div><strong>Entregador:</strong> <span id="cupom-entregador-despachado" class="font-bold text-emerald-700">Marcos (Moto 01)</span></div>
         </div>
-        <div id="cupom-linhas-produtos" class="space-y-1 py-1"></div>
+        <div id="cupom-linhas-produtos" class="space-y-1 py-1.5 text-xs"></div>
         <div class="border-b border-dashed border-slate-400 my-1"></div>
-        <div class="flex justify-between font-black text-sm">
-          <span>Total Pago:</span>
+        <div class="flex justify-between font-black text-sm pt-1">
+          <span>Valor pago:</span>
           <span id="cupom-valor-pago">R$ 115,00</span>
         </div>
-        <div class="text-center text-[10px] text-slate-500 pt-1">Atendente: <span id="cupom-atendente-nome">Wellington Gontijo</span></div>
+        <div class="text-center text-[11px] space-y-0.5 text-slate-500 pt-2">
+          <div>Atendente: <span id="cupom-atendente-nome">Wellington Gontijo</span></div>
+        </div>
       </div>
-      <div class="flex items-center gap-2 pt-3 border-t border-slate-200 mt-2">
-        <button onclick="window.print()" class="bg-[#15616d] text-white px-4 py-2 rounded-xl font-bold"><i class="fa-solid fa-print mr-1"></i> Imprimir</button>
-        <button onclick="enviarWhatsAppViaAtiva()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</button>
-        <button onclick="fecharCupom()" class="border border-slate-300 px-5 py-2 rounded-xl font-bold ml-auto">Fechar</button>
+
+      <div class="flex items-center gap-2 pt-3 border-t border-slate-200 shrink-0 text-xs flex-wrap">
+        <button onclick="window.print()" class="bg-[#15616d] text-white px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-print mr-1"></i> Imprimir</button>
+        <button onclick="enviarWhatsAppViaAtiva()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold"><i class="fa-brands fa-whatsapp text-sm mr-1"></i> WhatsApp</button>
+        <button onclick="fecharCupom()" class="border border-slate-300 px-5 py-2.5 rounded-xl font-bold ml-auto">Fechar</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: CLIENTE CRM -->
   <div id="modal-cliente" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-3 z-50">
-    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl flex flex-col justify-between max-h-[88vh]">
+    <div class="bg-[#131d31] border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl flex flex-col justify-between max-h-[88vh]">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="font-black text-base text-white" id="modal-cliente-titulo"><i class="fa-solid fa-user-pen text-blue-400 mr-2"></i>Cadastrar / Editar Cliente</h3>
+        <h3 class="font-black text-base text-white" id="modal-cliente-titulo"><i class="fa-solid fa-user-pen text-blue-400 mr-2"></i>Cadastrar Cliente</h3>
         <button onclick="fecharModal('modal-cliente')" class="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
       <input type="hidden" id="cli-edit-id" value="">
       <div class="overflow-y-auto custom-scroll space-y-3 my-3 text-xs pr-1">
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-slate-400 font-bold mb-1">Tipo</label><select id="cli-modal-tipo" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none"><option value="PF">Física (CPF)</option><option value="PJ">Jurídica (CNPJ)</option></select></div>
-          <div><label class="block text-slate-400 font-bold mb-1">Documento</label><input type="text" id="cli-modal-doc" placeholder="000.000.000-00" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono"></div>
+          <div><label class="block text-slate-400 font-bold mb-1">Tipo</label><select id="cli-modal-tipo" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2 text-white font-bold outline-none"><option value="PF">Física (CPF)</option><option value="PJ">Jurídica (CNPJ)</option></select></div>
+          <div><label class="block text-slate-400 font-bold mb-1">Documento</label><input type="text" id="cli-modal-doc" placeholder="000.000.000-00" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2 text-white outline-none"></div>
         </div>
-        <div><label class="block text-slate-400 font-bold mb-1">Nome Completo</label><input type="text" id="cli-modal-nome" placeholder="Nome" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none"></div>
+        <div><label class="block text-slate-400 font-bold mb-1">Nome Completo</label><input type="text" id="cli-modal-nome" placeholder="Nome" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2 text-white font-bold outline-none"></div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-slate-400 font-bold mb-1">WhatsApp</label><input type="text" id="cli-modal-fone" placeholder="(61) 98888-0000" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white outline-none"></div>
-          <div><label class="block text-slate-400 font-bold mb-1">Limite Fiado (R$)</label><input type="number" id="cli-modal-limite" value="500.00" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-mono font-bold outline-none"></div>
+          <div><label class="block text-slate-400 font-bold mb-1">WhatsApp</label><input type="text" id="cli-modal-fone" placeholder="(61) 98888-0000" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2 text-white outline-none"></div>
+          <div><label class="block text-slate-400 font-bold mb-1">Limite Fiado (R$)</label><input type="number" id="cli-modal-limite" value="500.00" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2 text-emerald-400 font-mono font-bold outline-none"></div>
         </div>
-        <div class="bg-[#0b1322] p-3 rounded-2xl border border-slate-800 space-y-2">
-          <span class="text-[10px] text-slate-400 uppercase font-bold block">Endereço</span>
+        <div class="bg-[#0b1322] p-3 rounded-xl border border-slate-800 space-y-2">
           <div class="grid grid-cols-3 gap-2">
             <div><input type="text" id="cli-modal-cep" placeholder="CEP" maxlength="9" oninput="consultarCEP(this.value)" class="w-full bg-[#131d31] border border-slate-700 rounded-lg p-2 text-white outline-none font-mono"></div>
             <div class="col-span-2"><input type="text" id="cli-modal-rua" placeholder="Rua / Quadra" class="w-full bg-[#131d31] border border-slate-700 rounded-lg p-2 text-white outline-none"></div>
@@ -833,38 +890,40 @@
 
   <!-- MODAL: AJUSTE ESTOQUE -->
   <div id="modal-ajuste-estoque" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-3 z-50">
-    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-base text-white flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-blue-400"></i> Ajustar Gavetas de Estoque</h3>
+    <div class="bg-[#131d31] border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl flex flex-col justify-between max-h-[88vh]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-black text-base text-white flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-blue-400"></i> Ajuste de Gaveta / Saldo Inicial</h3>
         <button onclick="fecharModal('modal-ajuste-estoque')" class="text-slate-400 text-lg">✕</button>
       </div>
-      <div>
-        <label class="block text-slate-400 font-bold mb-1">Produto</label>
-        <select id="ajuste-produto" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none">
-          <option value="P13">Botijão GLP 13kg</option>
-          <option value="AGUA20">Galão Água 20L</option>
-        </select>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="overflow-y-auto custom-scroll space-y-3 my-3 text-xs pr-1">
         <div>
-          <label class="block text-slate-400 font-bold mb-1">Gaveta Alvo</label>
-          <select id="ajuste-gaveta" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-bold">
-            <option value="cheios">1. Cheios</option>
-            <option value="vazios">2. Vazios</option>
-            <option value="avarias">4. Avariados</option>
+          <label class="block text-slate-400 font-bold mb-1">Produto</label>
+          <select id="ajuste-produto" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none">
+            <option value="P13">Botijão GLP 13kg</option>
+            <option value="AGUA20">Galão Água 20L</option>
           </select>
         </div>
-        <div>
-          <label class="block text-slate-400 font-bold mb-1">Operação</label>
-          <select id="ajuste-operacao" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-bold">
-            <option value="SOMAR">Adicionar (+)</option>
-            <option value="SUBTRAIR">Subtrair (-)</option>
-          </select>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Gaveta</label>
+            <select id="ajuste-gaveta" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none">
+              <option value="cheios">1. Cheios</option>
+              <option value="vazios">2. Vazios</option>
+              <option value="avarias">4. Avariados</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Operação</label>
+            <select id="ajuste-operacao" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none">
+              <option value="SOMAR">Adicionar (+)</option>
+              <option value="SUBTRAIR">Subtrair (-)</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div>
-        <label class="block text-slate-400 font-bold mb-1">Quantidade</label>
-        <input type="number" id="ajuste-qtd" value="10" min="1" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none">
+        <div>
+          <label class="block text-slate-400 font-bold mb-1">Quantidade</label>
+          <input type="number" id="ajuste-qtd" value="10" min="1" class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none">
+        </div>
       </div>
       <div class="flex gap-2 pt-2 border-t border-slate-800">
         <button onclick="fecharModal('modal-ajuste-estoque')" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl font-bold">Cancelar</button>
@@ -897,7 +956,7 @@
     </div>
   </div>
 
-  <!-- SCRIPT COMPLETO E INTEGRADO -->
+  <!-- SCRIPT INTEGRAL E COMPLETO -->
   <script>
     let destinoAtual = 'BALCAO';
     let formaPagamentoAtual = 'DINHEIRO';
@@ -977,11 +1036,6 @@
       if (subId === 'equipe') renderizarConfigTabelaEquipe();
     }
 
-    function toggleCarrinhoMobile() {
-      const drawer = document.getElementById('pdv-drawer-carrinho');
-      drawer.classList.toggle('translate-y-full');
-    }
-
     function setDestino(tipo) {
       destinoAtual = tipo;
       const bBalcao = document.getElementById('btn-destino-balcao');
@@ -1041,18 +1095,12 @@
       const forma = formasPagamento.find(f => f.id === formaPagamentoAtual) || formasPagamento[0];
       const taxa = subtotal * (forma.taxaPercent / 100);
       const lucro = Math.max(0, subtotal - cmv - taxa);
-      const qtdTotal = carrinho.reduce((a, b) => a + b.qtd, 0);
 
       document.getElementById('lbl-subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
       document.getElementById('lbl-total-cobrar').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
       document.getElementById('lbl-taxa-retida').textContent = `R$ ${taxa.toFixed(2).replace('.', ',')}`;
       document.getElementById('lbl-cmv-retido').textContent = `R$ ${cmv.toFixed(2).replace('.', ',')}`;
       document.getElementById('lbl-lucro-real').textContent = `R$ ${lucro.toFixed(2).replace('.', ',')}`;
-
-      const flutuanteItens = document.getElementById('txt-carrinho-flutuante-itens');
-      const flutuanteTotal = document.getElementById('txt-carrinho-flutuante-total');
-      if (flutuanteItens) flutuanteItens.textContent = `${qtdTotal} Itens adicionados`;
-      if (flutuanteTotal) flutuanteTotal.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
 
       calcularTroco();
     }
@@ -1089,9 +1137,6 @@
         <div class="flex justify-between"><span>${i.qtd}x ${i.nome}</span><strong>R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')}</strong></div>
       `).join('');
 
-      const drawer = document.getElementById('pdv-drawer-carrinho');
-      if (drawer && !drawer.classList.contains('translate-y-full')) drawer.classList.add('translate-y-full');
-
       document.getElementById('modal-cupom').classList.remove('hidden');
     }
 
@@ -1101,12 +1146,12 @@
       const bEnt = document.getElementById('btn-via-entregador');
       const blk = document.getElementById('bloco-via-entregador');
       if (via === 'CLIENTE') {
-        bCli.className = 'px-3 py-1 rounded font-bold bg-[#15616d] text-white';
-        bEnt.className = 'px-3 py-1 rounded font-bold text-slate-600';
+        bCli.className = 'px-4 py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow';
+        bEnt.className = 'px-4 py-2 rounded-lg font-bold text-slate-600';
         blk.classList.add('hidden');
       } else {
-        bEnt.className = 'px-3 py-1 rounded font-bold bg-[#15616d] text-white';
-        bCli.className = 'px-3 py-1 rounded font-bold text-slate-600';
+        bEnt.className = 'px-4 py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow';
+        bCli.className = 'px-4 py-2 rounded-lg font-bold text-slate-600';
         blk.classList.remove('hidden');
       }
     }
@@ -1200,12 +1245,12 @@
     function gerenciarStatusCaixa() {
       caixaAberto = !caixaAberto;
       const btn = document.getElementById('btn-status-caixa-pdv');
-      btn.innerHTML = caixaAberto ? '<i class="fa-solid fa-lock"></i> Fechar Caixa' : '<i class="fa-solid fa-lock-open"></i> Abrir Caixa';
+      btn.innerHTML = caixaAberto ? '<i class="fa-solid fa-lock text-xs"></i> 🔒 Fechar Caixa' : '<i class="fa-solid fa-lock-open text-xs"></i> 🔓 Abrir Caixa';
     }
     function abrirModalEmpresa() { setTab('configuracoes'); setSubConfig('empresa'); }
     function abrirModalMeuPerfil() { setTab('configuracoes'); setSubConfig('equipe'); }
     function abrirPainelRevendas() { setTab('configuracoes'); }
-    function abrirRelatorioFaturamento() { setTab('configuracoes'); }
+    function abrirRelatorioFaturamento() { setTab('dashboard'); }
     function abrirRelatorioPedidos() { setTab('pdv'); }
     function abrirModalEntregas() { setTab('pdv'); }
     function abrirModalDespesa() { abrirModalSangriaRapida(); }
@@ -1213,8 +1258,11 @@
     function realizarLogin(e) { e.preventDefault(); document.getElementById('overlay-login').classList.add('hidden'); }
     function entrarModoShowroom() { document.getElementById('overlay-login').classList.add('hidden'); }
     function fazerLogout() { location.reload(); }
+    function cadastrarClienteEVenderViaWhats() { setDestino('ENTREGA'); setTab('pdv'); }
     function enviarWhatsAppViaAtiva() { alert('Cupom encaminhado para o WhatsApp!'); }
     function enviarMensagemWhatsManual() { alert('Mensagem enviada!'); }
+    function enviarRespostaSugeridaWhats() { alert('Resposta enviada!'); }
+    function selecionarConversaWhats(id) {}
 
     window.onload = function() {
       renderizarBotoesPagamentoPDV();
