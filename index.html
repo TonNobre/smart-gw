@@ -68,6 +68,77 @@
 </head>
 <body class="bg-[#0b1322] text-slate-100 flex flex-col min-h-screen overflow-x-hidden selection:bg-blue-600 selection:text-white">
 
+  <!-- ========================================== -->
+  <!-- TELA DE LOGIN UNIFICADA                    -->
+  <!-- ========================================== -->
+  <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#070d1e]/95 backdrop-blur-md px-4">
+    <div class="w-full max-w-md bg-[#131d31] border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white font-black text-2xl shadow-lg shadow-orange-500/20 mb-3">
+          GW
+        </div>
+        <h2 class="text-2xl font-black tracking-tight text-white">Smart GW</h2>
+        <p class="text-xs text-slate-400 mt-1">Gestão Comercial para Revendas de Água, Gás e Gelo</p>
+      </div>
+
+      <div id="loginError" class="hidden mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>Documento ou senha inválidos.</span>
+      </div>
+
+      <form onsubmit="handleUniversalLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+            Acesso à Revenda (CNPJ, CPF ou E-mail)
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+              <i class="fa-solid fa-id-card"></i>
+            </span>
+            <input type="text" id="loginIdentifier" required placeholder="Digite seu CNPJ, CPF ou e-mail"
+              class="w-full pl-10 pr-4 py-3 bg-[#0b1322] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all font-sans">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+            Senha de Acesso
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+            <input type="password" id="loginSecret" required placeholder="Digite sua senha"
+              class="w-full pl-10 pr-4 py-3 bg-[#0b1322] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all">
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit"
+            class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 font-black text-white text-sm rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 active:scale-95">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Entrar no Sistema</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+        <span class="text-[11px] text-slate-500 font-mono">Smart GW Enterprise Cloud • v2.6</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRA DE VISUALIZAÇÃO ESPELHO (QUANDO VC ESPELHA OUTRA EMPRESA) -->
+  <div id="modoEspelhoBarra" class="hidden bg-gradient-to-r from-amber-600 to-orange-600 text-slate-950 font-bold text-xs py-1.5 px-6 flex items-center justify-between shadow-md sticky top-0 z-40">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-eye"></i>
+      <span>MODO ESPELHO ATIVO: Visualizando como <span id="espelhoNomeEmpresa" class="underline"></span></span>
+    </div>
+    <button onclick="voltarParaMinhaRevenda()" class="bg-slate-950 text-white hover:bg-slate-900 px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all">
+      <i class="fa-solid fa-arrow-left"></i> Minha Revenda
+    </button>
+  </div>
+
   <!-- CABEÇALHO GLOBAL (DESKTOP E TOPO DO APP NO CELULAR) -->
   <header class="sticky top-0 bg-[#0f172a] border-b border-slate-800/80 px-4 md:px-6 py-2.5 flex items-center justify-between shadow-md shrink-0 z-30">
     <div class="flex items-center gap-3">
@@ -112,18 +183,27 @@
       <button onclick="setTab('configuracoes')" id="btn-tab-configuracoes" class="tab-btn h-10 px-4 rounded-xl text-xs font-black transition text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
         <i class="fa-solid fa-gear text-sm text-amber-400"></i> Configurações
       </button>
+      <!-- Botão Exclusivo do Wellington: Gerenciar Revendas -->
+      <button onclick="abrirModalModuloRevendas()" id="btn-tab-revendas-admin" class="hidden tab-btn h-10 px-3.5 rounded-xl text-xs font-black transition bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 flex items-center gap-1.5 whitespace-nowrap shadow">
+        <i class="fa-solid fa-building-circle-check"></i> Revendas
+      </button>
     </nav>
 
-    <!-- Operador Atual -->
-    <div onclick="abrirModalMeuPerfil()" class="text-right border-l border-slate-800 pl-3 md:pl-4 cursor-pointer hover:opacity-80 transition flex items-center gap-2.5 shrink-0">
-      <div class="hidden sm:block">
-        <span class="text-[10px] font-black uppercase text-slate-400 block tracking-wider" id="header-cargo-label">Proprietário</span>
-        <span class="text-xs font-black text-emerald-400 font-mono" id="header-operador-nome">Wellington Gontijo</span>
+    <!-- Operador Atual & Ações -->
+    <div class="flex items-center gap-3">
+      <div onclick="abrirModalMeuPerfil()" class="text-right border-l border-slate-800 pl-3 md:pl-4 cursor-pointer hover:opacity-80 transition flex items-center gap-2.5 shrink-0">
+        <div class="hidden sm:block">
+          <span class="text-[10px] font-black uppercase text-slate-400 block tracking-wider" id="header-cargo-label">Proprietário</span>
+          <span class="text-xs font-black text-emerald-400 font-mono" id="header-operador-nome">Wellington Gontijo</span>
+        </div>
+        <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xs font-black overflow-hidden" id="header-avatar-box">
+          <img id="header-avatar-img" src="" class="w-full h-full object-cover hidden">
+          <i id="header-avatar-icon" class="fa-solid fa-user"></i>
+        </div>
       </div>
-      <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xs font-black overflow-hidden" id="header-avatar-box">
-        <img id="header-avatar-img" src="" class="w-full h-full object-cover hidden">
-        <i id="header-avatar-icon" class="fa-solid fa-user"></i>
-      </div>
+      <button onclick="handleLogout()" class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-700/60 flex items-center justify-center transition-all" title="Sair">
+        <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+      </button>
     </div>
   </header>
 
@@ -158,13 +238,16 @@
           <button onclick="setTab('configuracoes'); toggleMobileDrawer();" class="w-full p-3 rounded-xl flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white">
             <i class="fa-solid fa-gear text-amber-400 w-5"></i> Configurações
           </button>
+          <button onclick="abrirModalModuloRevendas(); toggleMobileDrawer();" id="btn-drawer-revendas-admin" class="hidden w-full p-3 rounded-xl flex items-center gap-3 text-slate-950 bg-gradient-to-r from-orange-500 to-amber-500 font-black shadow">
+            <i class="fa-solid fa-building-circle-check w-5"></i> Revendas & Testes
+          </button>
         </nav>
       </div>
 
       <div class="border-t border-slate-800 pt-4">
         <div class="text-xs text-slate-400 mb-2">Conectado como:</div>
-        <div class="text-sm font-bold text-white">Wellington Gontijo</div>
-        <div class="text-[11px] text-emerald-400 font-mono">Modo Teste 30 Dias Ativo</div>
+        <div class="text-sm font-bold text-white" id="drawer-nome-operador">Wellington Gontijo</div>
+        <div class="text-[11px] text-emerald-400 font-mono">Modo Oficial Ativo</div>
       </div>
     </div>
   </div>
@@ -180,7 +263,7 @@
         <div>
           <div class="flex items-center gap-2 text-xs font-bold text-blue-400 mb-1">
             <i class="fa-regular fa-calendar-days"></i>
-            <span id="dashboard-datetime">Domingo, 25 de outubro de 2026</span>
+            <span id="dashboard-datetime">Segunda-feira, 26 de outubro de 2026</span>
           </div>
           <h2 class="text-2xl md:text-3xl font-black text-white tracking-tight">Painel Principal</h2>
           <p class="text-slate-400 text-xs md:text-sm mt-0.5">Visão consolidada da operação e finanças da revenda.</p>
@@ -192,7 +275,6 @@
 
       <!-- Grade dos 6 Cards Idênticos -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-        <!-- Card 1: Faturamento Hoje -->
         <div onclick="abrirRelatorioFaturamento()" class="bg-[#131d31] border border-slate-800 hover:border-emerald-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Faturamento Hoje</span>
@@ -206,7 +288,6 @@
           </div>
         </div>
 
-        <!-- Card 2: Total de Vendas -->
         <div onclick="abrirRelatorioPedidos()" class="bg-[#131d31] border border-slate-800 hover:border-blue-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Total de Vendas</span>
@@ -220,7 +301,6 @@
           </div>
         </div>
 
-        <!-- Card 3: Entregas -->
         <div onclick="abrirModalEntregas()" class="bg-[#131d31] border border-slate-800 hover:border-cyan-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Entregas</span>
@@ -234,7 +314,6 @@
           </div>
         </div>
 
-        <!-- Card 4: Despesas -->
         <div onclick="abrirModalDespesa()" class="bg-[#131d31] border border-slate-800 hover:border-rose-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Despesas & Sangrias</span>
@@ -248,7 +327,6 @@
           </div>
         </div>
 
-        <!-- Card 5: Estoque -->
         <div onclick="setTab('vasilhames')" class="bg-[#131d31] border border-slate-800 hover:border-orange-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Patrimônio de Cascos</span>
@@ -262,7 +340,6 @@
           </div>
         </div>
 
-        <!-- Card 6: Clientes -->
         <div onclick="abrirModalCliente()" class="bg-[#131d31] border border-slate-800 hover:border-emerald-500/60 p-5 rounded-3xl shadow-sm cursor-pointer transition flex flex-col justify-between h-36 group active:scale-98">
           <div class="flex items-center justify-between">
             <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Gestão de Carteira</span>
@@ -289,7 +366,7 @@
         <!-- Topo: Tipo de Saída + Sangria/Caixa -->
         <div class="bg-[#131d31] border border-slate-800/80 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-2 shadow-sm">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-black text-slate-400 uppercase tracking-wider">SAÍDA:</span>
+            <span class="text-xs font-black text-slate-400 uppercase tracking-wider mr-1">SAÍDA:</span>
             <div class="flex gap-1.5">
               <button onclick="setDestino('BALCAO')" id="btn-destino-balcao" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition bg-blue-600 text-white shadow flex items-center gap-1.5">
                 <i class="fa-solid fa-store"></i> <span id="txt-btn-balcao">Balcão (Portaria)</span>
@@ -465,7 +542,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 overflow-hidden">
-        <!-- Lista de Conversas -->
         <div class="md:col-span-4 bg-[#131d31] border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
           <div class="p-3 border-b border-slate-800">
             <input type="text" placeholder="Buscar conversa..." class="w-full bg-[#0b1322] border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
@@ -491,14 +567,12 @@
           </div>
         </div>
 
-        <!-- Chat Central -->
         <div class="md:col-span-8 bg-[#131d31] border border-slate-800 rounded-2xl flex flex-col overflow-hidden">
           <div class="p-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 bg-[#0f172a]">
             <div>
               <strong class="text-white text-sm block" id="whats-chat-nome">Lorrane Tavares</strong>
               <span class="text-slate-400 text-xs font-mono" id="whats-chat-sub">(61) 99592-6936 • Quadra QR 204 Conjunto 1, 3</span>
             </div>
-            <!-- Botão Cadastrar & Vender Direto no PDV -->
             <button onclick="cadastrarClienteEVenderViaWhats()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 active:scale-95">
               <i class="fa-solid fa-bolt"></i> Cadastrar & Vender no PDV
             </button>
@@ -580,7 +654,7 @@
   </div>
 
   <!-- ============================================================ -->
-  <!-- MODAL: RELATÓRIO DE FATURAMENTO COM FILTROS DE DIA/MÊS/ANO   -->
+  <!-- MODAIS PRESERVADOS (FATURAMENTO, CUPOM, TELE-ENTREGA)        -->
   <!-- ============================================================ -->
   <div id="modal-faturamento" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50">
     <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-xl w-full p-5 md:p-6 shadow-2xl space-y-4 text-xs">
@@ -591,7 +665,6 @@
         <button onclick="fecharModal('modal-faturamento')" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
       </div>
 
-      <!-- Barra de Filtros -->
       <div class="bg-[#0b1322] p-3 rounded-2xl border border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2">
         <div>
           <label class="block text-slate-400 font-bold mb-1 text-[10px] uppercase">Período:</label>
@@ -648,18 +721,13 @@
     </div>
   </div>
 
-  <!-- ============================================================ -->
-  <!-- MODAL: CUPOM NÃO FISCAL COM COMPARTILHAR WHATSAPP DUPLO      -->
-  <!-- ============================================================ -->
   <div id="modal-cupom" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50">
     <div class="bg-white rounded-2xl max-w-[640px] w-full p-4 md:p-6 shadow-2xl flex flex-col max-h-[94vh] text-slate-900 border border-slate-200">
-      
       <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3 shrink-0">
         <div>
           <h2 class="text-lg md:text-xl font-bold tracking-tight text-slate-900">Cupom não fiscal</h2>
           <p class="text-[11px] text-slate-500 mt-0.5">Comprovante de venda.<br>Não é documento fiscal: se a nota for emitida depois, ela é que vale.</p>
         </div>
-        
         <div class="flex items-center gap-3">
           <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs" id="box-seletor-vias-cupom">
             <button onclick="alternarViaCupom('CLIENTE')" id="btn-via-cliente" class="px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-bold transition bg-[#15616d] text-white shadow">Via do cliente</button>
@@ -681,7 +749,6 @@
 
           <div class="border-b border-dashed border-slate-400 my-1"></div>
 
-          <!-- BLOCO CONDICIONAL: VIA DO ENTREGADOR -->
           <div id="bloco-via-entregador" class="hidden space-y-0.5 text-xs py-1 border-b border-dashed border-slate-400 mb-1">
             <div class="font-black text-center text-xs uppercase tracking-wider mb-1">VIA DO ENTREGADOR</div>
             <div><strong>Cliente:</strong> <span id="cupom-entregador-nome" class="font-bold">LORRANE DA COSTA TAVARES</span></div>
@@ -726,7 +793,6 @@
         </div>
       </div>
 
-      <!-- Barra de Ações do Cupom com Envio WhatsApp Específico para a Via Ativa -->
       <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-200 shrink-0 text-xs">
         <button onclick="window.print()" class="bg-[#15616d] hover:bg-[#0e424a] text-white px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow">
           <i class="fa-solid fa-print"></i> Imprimir
@@ -734,7 +800,6 @@
         <button onclick="baixarPDFCupom()" class="border border-slate-300 hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5">
           <i class="fa-solid fa-download"></i> PDF
         </button>
-        <!-- Disparo WhatsApp Dinâmico (Cliente ou Entregador) -->
         <button onclick="enviarWhatsAppViaAtiva()" id="btn-whats-cupom-dinamico" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow">
           <i class="fa-brands fa-whatsapp text-sm"></i> <span id="txt-btn-whats-cupom">WhatsApp do Cliente</span>
         </button>
@@ -745,7 +810,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CARREGAMENTO DE TELE-ENTREGA -->
   <div id="modal-criar-carregamento" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -777,8 +841,294 @@
     </div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- MODAL: GESTÃO DAS 10 REVENDAS DE TESTE (CENTRAL MASTER)      -->
+  <!-- ============================================================ -->
+  <div id="modal-gestao-revendas" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-3 md:p-6 z-50">
+    <div class="bg-[#131d31] border border-slate-800 rounded-3xl max-w-3xl w-full p-6 shadow-2xl space-y-5 text-xs max-h-[92vh] overflow-y-auto custom-scroll">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-slate-950 flex items-center justify-center text-lg font-black shadow-lg shadow-orange-500/20">
+            <i class="fa-solid fa-building-circle-check"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-base text-white">Central de Revendas Piloto (Smart GW)</h3>
+            <p class="text-slate-400 text-[11px]">Liberar período de teste de 30 dias para até 10 clientes</p>
+          </div>
+        </div>
+        <button onclick="fecharModal('modal-gestao-revendas')" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Demonstração Infinita -->
+      <div class="bg-gradient-to-r from-blue-950/60 to-indigo-950/60 border border-blue-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+        <div>
+          <span class="px-2 py-0.5 text-[9px] bg-blue-500/20 text-blue-300 border border-blue-500/40 rounded-full font-bold uppercase tracking-wider">Showroom Livre</span>
+          <h4 class="font-bold text-sm text-white mt-1">Ambiente de Demonstração Comercial</h4>
+          <p class="text-slate-300 text-[11px]">Apresente o sistema ao vivo registrando vendas sem alterar a sua revenda oficial.</p>
+        </div>
+        <button onclick="ativarModoShowroom()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition-all whitespace-nowrap shadow">
+          <i class="fa-solid fa-play mr-1"></i> Abrir Demonstração
+        </button>
+      </div>
+
+      <!-- Cadastro de Nova Revenda -->
+      <div class="bg-[#0b1322] p-4 rounded-2xl border border-slate-800 space-y-3">
+        <h4 class="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-plus-circle"></i> Cadastrar Nova Revenda para Teste (30 Dias)
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <input type="text" id="novo-rev-nome" placeholder="Nome Fantasia (ex: Gás & Água Sul)" class="bg-[#131d31] border border-slate-700 rounded-xl p-2.5 text-white outline-none">
+          <input type="text" id="novo-rev-doc" placeholder="CNPJ ou CPF (apenas números)" class="bg-[#131d31] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <input type="text" id="novo-rev-whats" placeholder="WhatsApp (com DDD)" class="bg-[#131d31] border border-slate-700 rounded-xl p-2.5 text-white outline-none">
+          <div class="flex gap-2">
+            <input type="text" id="novo-rev-senha" placeholder="Senha de Acesso (ex: 123456)" class="flex-1 bg-[#131d31] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono">
+            <button onclick="gerarSenhaCliente()" type="button" class="px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700" title="Gerar Senha Aleatória">
+              <i class="fa-solid fa-shuffle"></i>
+            </button>
+          </div>
+        </div>
+        <button onclick="cadastrarRevendaPiloto()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2">
+          <i class="fa-solid fa-check"></i> Salvar e Liberar Acesso do Cliente
+        </button>
+      </div>
+
+      <!-- Tabela de Revendas Cadastradas -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+            Revendas Cadastradas (<span id="contagem-revendas-ativas">0</span>/10)
+          </h4>
+        </div>
+        <div class="max-h-56 overflow-y-auto border border-slate-800 rounded-2xl divide-y divide-slate-800" id="lista-revendas-piloto"></div>
+      </div>
+
+      <div class="text-right pt-2 border-t border-slate-800">
+        <button onclick="fecharModal('modal-gestao-revendas')" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT PRINCIPAL -->
   <script>
+    // ==========================================
+    // CONTROLE DE SESSÃO & TENANTS MULTI-LOJA
+    // ==========================================
+    const MASTER_CONFIG = {
+      identificadores: ["vozdoton@gmail.com", "wellington", "000.000.000-00", "00000000000"],
+      senha: "admin123",
+      empresa: "Smart GW (Matriz Oficial)",
+      proprietario: "Wellington Gontijo",
+      cnpj: "12.345.678/0001-90"
+    };
+
+    function carregarRevendasDoStorage() {
+      const salvas = localStorage.getItem('smartgw_contas_tenants');
+      if (salvas) return JSON.parse(salvas);
+      const padrao = {
+        "11111111111": { nome: "Revenda Modelo Piloto", pass: "123456", whats: "61999999999", doc: "111.111.111-11" }
+      };
+      localStorage.setItem('smartgw_contas_tenants', JSON.stringify(padrao));
+      return padrao;
+    }
+
+    function handleUniversalLogin(e) {
+      e.preventDefault();
+      const idInput = document.getElementById('loginIdentifier').value.trim();
+      const passInput = document.getElementById('loginSecret').value.trim();
+      const erroEl = document.getElementById('loginError');
+      const idLimpo = idInput.toLowerCase().replace(/\D/g, "");
+
+      // 1. É o Wellington (Acesso Mestre)?
+      const isMaster = MASTER_CONFIG.identificadores.some(id => {
+        return id.toLowerCase() === idInput.toLowerCase() || (idLimpo && id.replace(/\D/g, "") === idLimpo);
+      });
+
+      if (isMaster && passInput === MASTER_CONFIG.senha) {
+        sessionStorage.setItem('smartgw_auth', 'true');
+        sessionStorage.setItem('smartgw_is_owner', 'true');
+        sessionStorage.setItem('smartgw_active_empresa', MASTER_CONFIG.empresa);
+        sessionStorage.setItem('smartgw_active_doc', MASTER_CONFIG.cnpj);
+        sessionStorage.setItem('smartgw_active_prop', MASTER_CONFIG.proprietario);
+        aplicarSessaoVisual();
+        return;
+      }
+
+      // 2. É uma revenda cliente de teste?
+      const revendas = carregarRevendasDoStorage();
+      const clienteKey = Object.keys(revendas).find(k => k === idInput || k === idLimpo || revendas[k].doc === idInput);
+
+      if (clienteKey && revendas[clienteKey].pass === passInput) {
+        const c = revendas[clienteKey];
+        sessionStorage.setItem('smartgw_auth', 'true');
+        sessionStorage.setItem('smartgw_is_owner', 'false');
+        sessionStorage.setItem('smartgw_active_empresa', c.nome);
+        sessionStorage.setItem('smartgw_active_doc', c.doc || clienteKey);
+        sessionStorage.setItem('smartgw_active_prop', c.nome);
+        aplicarSessaoVisual();
+        return;
+      }
+
+      erroEl.classList.remove('hidden');
+    }
+
+    function aplicarSessaoVisual() {
+      const auth = sessionStorage.getItem('smartgw_auth');
+      const isOwner = sessionStorage.getItem('smartgw_is_owner') === 'true';
+      const isEspelho = sessionStorage.getItem('smartgw_is_espelho') === 'true';
+
+      if (auth === 'true') {
+        document.getElementById('loginOverlay').classList.add('hidden');
+        
+        const nomeEmpresa = sessionStorage.getItem('smartgw_active_empresa') || "Smart GW";
+        const docEmpresa = sessionStorage.getItem('smartgw_active_doc') || "12.345.678/0001-90";
+        const propEmpresa = sessionStorage.getItem('smartgw_active_prop') || "Wellington Gontijo";
+
+        document.getElementById('header-empresa-nome').textContent = nomeEmpresa;
+        document.getElementById('header-empresa-cnpj').textContent = `CNPJ: ${docEmpresa}`;
+        document.getElementById('header-operador-nome').textContent = propEmpresa;
+        document.getElementById('drawer-nome-operador').textContent = propEmpresa;
+
+        if (isOwner) {
+          document.getElementById('btn-tab-revendas-admin').classList.remove('hidden');
+          document.getElementById('btn-drawer-revendas-admin').classList.remove('hidden');
+        } else {
+          document.getElementById('btn-tab-revendas-admin').classList.add('hidden');
+          document.getElementById('btn-drawer-revendas-admin').classList.add('hidden');
+        }
+
+        if (isEspelho) {
+          document.getElementById('modoEspelhoBarra').classList.remove('hidden');
+          document.getElementById('espelhoNomeEmpresa').textContent = nomeEmpresa;
+        } else {
+          document.getElementById('modoEspelhoBarra').classList.add('hidden');
+        }
+
+      } else {
+        document.getElementById('loginOverlay').classList.remove('hidden');
+        document.getElementById('modoEspelhoBarra').classList.add('hidden');
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.clear();
+      location.reload();
+    }
+
+    function abrirModalModuloRevendas() {
+      document.getElementById('modal-gestao-revendas').classList.remove('hidden');
+      renderizarRevendasPiloto();
+    }
+
+    function gerarSenhaCliente() {
+      document.getElementById('novo-rev-senha').value = Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    function cadastrarRevendaPiloto() {
+      const nome = document.getElementById('novo-rev-nome').value.trim();
+      const doc = document.getElementById('novo-rev-doc').value.trim();
+      const whats = document.getElementById('novo-rev-whats').value.trim();
+      const pass = document.getElementById('novo-rev-senha').value.trim();
+
+      if (!nome || !doc || !pass) return alert("Preencha o Nome, Documento e Senha.");
+
+      const docLimpo = doc.replace(/\D/g, "") || doc;
+      const revendas = carregarRevendasDoStorage();
+
+      revendas[docLimpo] = { nome, doc, whats, pass };
+      localStorage.setItem('smartgw_contas_tenants', JSON.stringify(revendas));
+      renderizarRevendasPiloto();
+
+      document.getElementById('novo-rev-nome').value = "";
+      document.getElementById('novo-rev-doc').value = "";
+      document.getElementById('novo-rev-whats').value = "";
+      document.getElementById('novo-rev-senha').value = "";
+      alert(`Revenda ${nome} cadastrada e liberada com sucesso!`);
+    }
+
+    function renderizarRevendasPiloto() {
+      const revendas = carregarRevendasDoStorage();
+      const container = document.getElementById('lista-revendas-piloto');
+      const chaves = Object.keys(revendas);
+      document.getElementById('contagem-revendas-ativas').textContent = chaves.length;
+
+      if (chaves.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 p-4 text-center">Nenhuma revenda cadastrada ainda.</p>`;
+        return;
+      }
+
+      container.innerHTML = chaves.map(k => {
+        const r = revendas[k];
+        return `
+          <div class="p-3.5 bg-[#0b1322] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-white">${r.nome}</span>
+                <span class="text-[9px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-semibold">30 Dias Ativo</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-mono mt-0.5">${r.doc} • Senha: <span class="text-orange-400 font-bold">${r.pass}</span></p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="espelharVisaoRevenda('${k}')" class="px-2.5 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+                <i class="fa-solid fa-eye"></i> Visão da Revenda
+              </button>
+              <button onclick="copiarConviteWhatsApp('${r.nome}', '${r.doc}', '${r.pass}')" class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+              </button>
+              <button onclick="removerRevendaPiloto('${k}')" class="text-slate-500 hover:text-rose-400 px-2 py-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function removerRevendaPiloto(k) {
+      if (confirm("Remover o acesso desta revenda?")) {
+        const revendas = carregarRevendasDoStorage();
+        delete revendas[k];
+        localStorage.setItem('smartgw_contas_tenants', JSON.stringify(revendas));
+        renderizarRevendasPiloto();
+      }
+    }
+
+    function espelharVisaoRevenda(k) {
+      const r = carregarRevendasDoStorage()[k];
+      if (!r) return;
+      sessionStorage.setItem('smartgw_active_empresa', r.nome);
+      sessionStorage.setItem('smartgw_active_doc', r.doc);
+      sessionStorage.setItem('smartgw_active_prop', r.nome);
+      sessionStorage.setItem('smartgw_is_espelho', 'true');
+      fecharModal('modal-gestao-revendas');
+      aplicarSessaoVisual();
+    }
+
+    function voltarParaMinhaRevenda() {
+      sessionStorage.setItem('smartgw_active_empresa', MASTER_CONFIG.empresa);
+      sessionStorage.setItem('smartgw_active_doc', MASTER_CONFIG.cnpj);
+      sessionStorage.setItem('smartgw_active_prop', MASTER_CONFIG.proprietario);
+      sessionStorage.setItem('smartgw_is_espelho', 'false');
+      aplicarSessaoVisual();
+    }
+
+    function ativarModoShowroom() {
+      sessionStorage.setItem('smartgw_active_empresa', 'Smart GW Showroom (Demo Infinita)');
+      sessionStorage.setItem('smartgw_active_doc', '00.000.000/0001-00');
+      sessionStorage.setItem('smartgw_active_prop', 'Demonstração Comercial');
+      sessionStorage.setItem('smartgw_is_espelho', 'true');
+      fecharModal('modal-gestao-revendas');
+      aplicarSessaoVisual();
+    }
+
+    function copiarConviteWhatsApp(nome, doc, pass) {
+      const texto = `Olá! O seu acesso ao sistema *Smart GW* está liberado para o teste de 30 dias.\n\n🔗 *Link:* ${window.location.origin}\n🏢 *Login (CNPJ/CPF):* ${doc}\n🔑 *Senha:* ${pass}\n\nAcesse e boas vendas!`;
+      navigator.clipboard.writeText(texto).then(() => alert("Convite copiado para o WhatsApp!"));
+    }
+
+    // ==========================================
+    // CÓDIGO ORIGINAL LEGÍTIMO DO PDV & NEGÓCIO
+    // ==========================================
     let destinoAtual = 'BALCAO';
     let formaPagamentoAtual = 'DINHEIRO';
     let carrinho = [];
@@ -825,9 +1175,6 @@
       }
     }
 
-    // ==========================================
-    // WHATSAPP: CADASTRO E VENDA IMEDIATA NO PDV
-    // ==========================================
     function carregarChatWhats(nome, fone, end) {
       document.getElementById('whats-chat-nome').textContent = nome;
       document.getElementById('whats-chat-sub').textContent = `${fone} • ${end || 'Endereço pendente'}`;
@@ -840,7 +1187,6 @@
       const fone = partes[0] ? partes[0].trim() : '(61) 98888-0000';
       const end = partes[1] ? partes[1].trim() : 'Quadra QR 204 Conjunto 1, 3 — casa';
 
-      // Passa para o PDV já preenchido
       document.getElementById('cli-nome').value = nome;
       document.getElementById('cli-fone').value = fone;
       document.getElementById('cli-end').value = end;
@@ -850,9 +1196,6 @@
       alert(`Cliente ${nome} selecionado! Pronto para registrar o pedido no Caixa PDV.`);
     }
 
-    // ==========================================
-    // CAIXA PDV & CONCLUSÃO CONDICIONAL
-    // ==========================================
     function cliqueConcluirVenda() {
       if (carrinho.length === 0) adicionarItem('P13');
 
@@ -934,7 +1277,6 @@
       }
     }
 
-    // Compartilhamento Inteligente no WhatsApp: Cliente vs Entregador
     function enviarWhatsAppViaAtiva() {
       if (viaCupomAtual === 'CLIENTE') {
         const foneCliente = document.getElementById('cli-fone').value.replace(/\D/g, '') || '5561995926936';
@@ -952,7 +1294,6 @@
       }
     }
 
-    // Relatório de Faturamento com Filtros Dinâmicos
     function abrirRelatorioFaturamento() {
       document.getElementById('modal-faturamento').classList.remove('hidden');
       aplicarFiltrosFaturamento();
@@ -983,7 +1324,6 @@
       document.getElementById('faturamento-val-credito').textContent = `R$ ${credito.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     }
 
-    // Helpers PDV
     function setDestino(tipo) {
       destinoAtual = tipo;
       const btnBalcao = document.getElementById('btn-destino-balcao');
@@ -1063,20 +1403,23 @@
     function fecharModal(id) { document.getElementById(id).classList.add('hidden'); }
     function fecharCupom() { document.getElementById('modal-cupom').classList.add('hidden'); limparPedido(); }
     function baixarPDFCupom() { window.print(); }
-    function abrirModalCliente() { document.getElementById('modal-cliente').classList.remove('hidden'); }
-    function salvarCliente() { fecharModal('modal-cliente'); alert('Cliente salvo!'); }
+    function abrirModalCliente() { alert('Módulo de Clientes'); }
+    function salvarCliente() { alert('Cliente salvo!'); }
     function abrirModalDespesa() { alert('Despesas'); }
-    function abrirRelatorioPedidos() { document.getElementById('modal-pedidos').classList.remove('hidden'); }
-    function abrirModalEntregas() { document.getElementById('modal-entregas').classList.remove('hidden'); }
-    function abrirModalSangriaRapida() { document.getElementById('modal-sangria-rapida').classList.remove('hidden'); }
-    function confirmarSangriaRapida() { fecharModal('modal-sangria-rapida'); alert('Sangria registrada!'); }
-    function gerenciarStatusCaixa() { document.getElementById('modal-fechar-caixa').classList.remove('hidden'); }
+    function abrirRelatorioPedidos() { alert('Relatório de Pedidos'); }
+    function abrirModalEntregas() { alert('Módulo de Entregas'); }
+    function abrirModalSangriaRapida() { alert('Sangria Rápida'); }
+    function confirmarSangriaRapida() { alert('Sangria registrada!'); }
+    function gerenciarStatusCaixa() { alert('Status do Caixa'); }
     function abrirModalEmpresa() { alert('Configuração dos Dados da Empresa'); }
     function abrirModalMeuPerfil() { alert('Perfil do Operador'); }
 
-    // Inicialização
-    renderizarBotoesPagamentoPDV();
-    renderizarCarrinho();
+    // Inicialização da Página
+    window.onload = function() {
+      aplicarSessaoVisual();
+      renderizarBotoesPagamentoPDV();
+      renderizarCarrinho();
+    };
   </script>
 </body>
 </html>
